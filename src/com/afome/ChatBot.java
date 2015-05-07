@@ -20,12 +20,7 @@ import org.json.*;
  */
 
 public class ChatBot {
-    String serverName = "";
-    String nick = "";
-    String password = "";
-    String channel = "";
-    String op = "";
-    int port = -1;
+    ConfigHandler config;
     final long TEN_MINUTES_IN_MILLIS = 600000;
 
     BufferedWriter writer = null;
@@ -44,26 +39,18 @@ public class ChatBot {
     }
 
     public void start() throws Exception {
-        String configContent = new String(Files.readAllBytes(Paths.get("data/config.json")));
-        JSONObject jsonConfigObject = new JSONObject(configContent);
-
-        serverName = jsonConfigObject.getString("servername");
-        nick = jsonConfigObject.getString("nick");
-        password = jsonConfigObject.getString("password");
-        channel = jsonConfigObject.getString("channel");
-        op = jsonConfigObject.getString("op");
-        port = jsonConfigObject.getInt("port");
+        config = new ConfigHandler();
 
         DataFileIO fileIO = new DataFileIO();
         fullUserDataList = fileIO.createDataFromFile();
 
 
-        Socket socket = new Socket(serverName, port);
+        Socket socket = new Socket(config.getServerName(), config.getPort());
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         connectToServer();
-        joinChannel(this.channel);
+        joinChannel(config.getChannel());
 
 
         // MAIN LOOP
@@ -119,7 +106,7 @@ public class ChatBot {
         userData.handleChatMessage();
 
         //MOD COMMANDS
-        if (userData.getUser().equalsIgnoreCase(op)) {
+        if (userData.getUser().equalsIgnoreCase(config.getOp())) {
             if (message.getMessage().equals("!stopbot")) {
                 running = false;
             }
@@ -196,7 +183,7 @@ public class ChatBot {
 
     public void sendChatMessage(String message) throws Exception {
         System.out.println("LOG: Sending a chat message");
-        writer.write("PRIVMSG " + channel + " :" + message + "\r\n");
+        writer.write("PRIVMSG " + config.getChannel() + " :" + message + "\r\n");
         writer.flush();
     }
 
@@ -212,8 +199,8 @@ public class ChatBot {
     }
 
     public boolean connectToServer() throws IOException {
-        writer.write("PASS " + password + "\r\n");
-        writer.write("NICK " + nick + "\r\n");
+        writer.write("PASS " + config.getPassword() + "\r\n");
+        writer.write("NICK " + config.getNick() + "\r\n");
         writer.flush();
 
         // Read lines from the server until it tells us we have connected.
