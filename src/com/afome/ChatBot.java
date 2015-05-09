@@ -6,18 +6,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import org.json.*;
-
-
-
-
-/* TASKS TO DO
- * - Make main loop based on time rather than chat messages
- *
- */
 
 public class ChatBot {
     ConfigHandler config;
@@ -43,7 +31,6 @@ public class ChatBot {
 
         DataFileIO fileIO = new DataFileIO();
         fullUserDataList = fileIO.createDataFromFile();
-
 
         Socket socket = new Socket(config.getServerName(), config.getPort());
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));

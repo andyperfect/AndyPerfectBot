@@ -4,5 +4,14 @@
   "password":"oauth:whatevermyoauthkeyhappenstobe",
   "channel":"#mychannel",
   "port":80,
-  "op":"the_special_user_that_has_access_to_run_special_commands"
+  "users": {
+    "op":"the_special_user_that_has_access_to_run_special_commands",
+    "mods": [
+      "mod1",
+      "mod2",
+      "mod3",
+      "mod4"
+    ]
+  }
+
 }

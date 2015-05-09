@@ -5,6 +5,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ConfigHandler {
     private String serverName = "";
@@ -12,6 +14,7 @@ public class ConfigHandler {
     private String password = "";
     private String channel = "";
     private String op = "";
+    private ArrayList<String> mods;
     private int port = -1;
 
     public ConfigHandler() throws IOException {
@@ -22,8 +25,13 @@ public class ConfigHandler {
         nick = jsonConfigObject.getString("nick");
         password = jsonConfigObject.getString("password");
         channel = jsonConfigObject.getString("channel");
-        op = jsonConfigObject.getString("op");
         port = jsonConfigObject.getInt("port");
+
+        JSONObject users = jsonConfigObject.getJSONObject("users");
+        op = users.getString("op");
+        mods = new ArrayList<String>();
+        mods.addAll(Arrays.asList(users.getJSONArray("mods").toString().split(",")));
+
     }
 
     public String getServerName() {
@@ -48,5 +56,9 @@ public class ConfigHandler {
 
     public int getPort() {
         return port;
+    }
+
+    public ArrayList<String> getMods() {
+        return mods;
     }
 }
