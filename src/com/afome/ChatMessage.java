@@ -1,14 +1,6 @@
 package com.afome;
 
-import java.util.Date;
-
 public class ChatMessage {
-    /*
-    Example of a chat message:
-    :andyperfect!andyperfect@andyperfect.tmi.twitch.tv PRIVMSG #andyperfect :test5
-    :andyperfect!andyperfect@andyperfect.tmi.twitch.tv PART #andyperfect
-    :andyperfectbot!andyperfectbot@andyperfectbot.tmi.twitch.tv JOIN #andyperfect
-     */
 
     private String user = "";
     private String url = "";
