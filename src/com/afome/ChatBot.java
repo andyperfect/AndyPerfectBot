@@ -21,6 +21,7 @@ public class ChatBot {
     boolean queueOpen = false;
 
     long lastFileWrite = System.currentTimeMillis();
+    long startTime = System.currentTimeMillis();
 
     public ChatBot() {
 
@@ -58,7 +59,6 @@ public class ChatBot {
                 handlePartMessage(message);
             } else if (message.getMessageType() == ChatMessageType.CHAT) {
                 handleChatMessage(message);
-
             }
 
             if (System.currentTimeMillis() - lastFileWrite >= TEN_MINUTES_IN_MILLIS) {
@@ -141,7 +141,7 @@ public class ChatBot {
             if (userData == null) {
                 sendChatMessage("User '" + message.getUser() + "' not yet in system");
             } else {
-                sendChatMessage("User '" + message.getUser() + "' has been active for " + userData.getConnectionTimeInMinutes() + " minutes");
+                sendChatMessage("User '" + message.getUser() + "' has been active for " + millisToReadableFormat(userData.getNumMillis()));
             }
         }
 
@@ -152,6 +152,11 @@ public class ChatBot {
                 sendChatMessage("User '" + message.getUser() + "' has sent " + userData.getChatCount() + " chat messages");
             }
         }
+        if (message.getMessage().equals("!uptime")) {
+            long curTime = System.currentTimeMillis();
+            sendChatMessage("The stream has been up for " + millisToReadableFormat(curTime - startTime));
+        }
+
         if (message.getMessage().equals("!enterqueue") && queueOpen) {
             boolean isInQueue = queueUserDataList.findUser(userData.getUser()) != null;
             if (!isInQueue) {
@@ -204,5 +209,56 @@ public class ChatBot {
             }
         }
         return false;
+    }
+
+    public String millisToReadableFormat(long millis) {
+        /*86400000 millis in a day
+         *3600000 millis in an hour
+         * 60000 millis in a minute
+        */
+        String timeString = "";
+        StringBuilder timeStringBuilder = new StringBuilder();
+        long delta = millis;
+
+        long days = (long) Math.floor(delta / 86400000.0);
+        delta -= days * 86400000;
+
+        long hours = (long) Math.floor(delta / 3600000.0);
+        delta -= hours * 3600000;
+
+        long minutes = (long) Math.floor(delta / 60000.0);
+        delta -= minutes * 60000;
+
+        if (days > 0) {
+            timeStringBuilder.append(String.valueOf(days));
+            String toAppend = (days == 1) ? " day" : " days";
+            timeStringBuilder.append(toAppend);
+            if (hours > 0 && minutes > 0) {
+                timeStringBuilder.append(", ");
+            } else if (hours > 0 || minutes > 0) {
+                timeStringBuilder.append(" and ");
+            }
+        }
+
+        if (hours > 0) {
+            timeStringBuilder.append(String.valueOf(hours));
+            String toAppend = (hours == 1) ? " hour" : " hours";
+            timeStringBuilder.append(toAppend);
+            if (minutes > 0) {
+                timeStringBuilder.append(" and ");
+            }
+        }
+
+        if (minutes > 0) {
+            timeStringBuilder.append(String.valueOf(minutes));
+            String toAppend = (minutes == 1) ? " minute" : " minutes";
+            timeStringBuilder.append(toAppend);
+        }
+
+        if (days == 0 && hours == 0 && minutes == 0) {
+            timeStringBuilder.append("less than one minute");
+        }
+
+        return timeStringBuilder.toString();
     }
 }
