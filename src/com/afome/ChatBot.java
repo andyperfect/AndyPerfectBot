@@ -15,10 +15,8 @@ public class ChatBot {
     BufferedReader reader = null;
 
     UserDataList fullUserDataList;
-    UserDataList queueUserDataList;
 
     boolean running = true;
-    boolean queueOpen = false;
 
     long lastFileWrite = System.currentTimeMillis();
     long startTime = System.currentTimeMillis();
@@ -97,44 +95,6 @@ public class ChatBot {
             if (message.getMessage().equals("!stopbot")) {
                 running = false;
             }
-            if (message.getMessage().equals("!openqueue") && !queueOpen) {
-                queueUserDataList = new UserDataList();
-                queueOpen = true;
-            }
-            if (message.getMessage().equals("!dequeue") && queueOpen) {
-                if (queueUserDataList.size() > 0) {
-                    UserData userDataQueue = queueUserDataList.remove(0);
-                    if (userDataQueue != null) {
-
-                    }
-                }
-            }
-            if (message.getMessage().equals("!closequeue") && queueOpen) {
-                queueUserDataList = new UserDataList();
-                queueOpen = false;
-            }
-            if (message.getMessage().startsWith("!removefromqueue") && queueOpen) {
-                String userToRemove = message.getMessage().substring(22);
-                UserData userDataToRemove = queueUserDataList.findUser(userToRemove);
-                if (userDataToRemove != null) {
-                    queueUserDataList.remove(userDataToRemove);
-                    sendChatMessage("Removed " + userToRemove + " from queue");
-                } else {
-                    sendChatMessage("User " + userToRemove + " is not in the queue");
-                }
-            }
-            if (message.getMessage().equals("!showqueue") && queueOpen) {
-                int orderNumber = 1;
-                StringBuilder stringBuilder = new StringBuilder();
-                for (UserData userDataQueue : queueUserDataList) {
-                    stringBuilder.append(String.valueOf(orderNumber + ". " + userDataQueue.getUser() + " " ));
-                    orderNumber++;
-                }
-                if (orderNumber == 1) {//Nobody in queue
-                    sendChatMessage("The queue is empty");
-                }
-                sendChatMessage(stringBuilder.toString());
-            }
         }
 
         if (message.getMessage().equals("!pp")) {
@@ -155,21 +115,6 @@ public class ChatBot {
         if (message.getMessage().equals("!uptime")) {
             long curTime = System.currentTimeMillis();
             sendChatMessage("The stream has been up for " + millisToReadableFormat(curTime - startTime));
-        }
-
-        if (message.getMessage().equals("!enterqueue") && queueOpen) {
-            boolean isInQueue = queueUserDataList.findUser(userData.getUser()) != null;
-            if (!isInQueue) {
-                queueUserDataList.add(userData);
-                sendChatMessage("Added user " + userData.getUser() + " to queue");
-            }
-        }
-        if (message.getMessage().equals("!leavequeue") && queueOpen) {
-            boolean isInQueue = queueUserDataList.findUser(userData.getUser()) != null;
-            if (isInQueue) {
-                queueUserDataList.remove(userData);
-                sendChatMessage("Removed user " + userData.getUser() + " from queue");
-            }
         }
     }
 
