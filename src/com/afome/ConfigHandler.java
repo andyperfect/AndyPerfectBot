@@ -14,7 +14,6 @@ public class ConfigHandler {
     private String password = "";
     private String channel = "";
     private String op = "";
-    private ArrayList<String> mods;
     private int port = -1;
 
     public ConfigHandler() throws IOException {
@@ -29,8 +28,6 @@ public class ConfigHandler {
 
         JSONObject users = jsonConfigObject.getJSONObject("users");
         op = users.getString("op");
-        mods = new ArrayList<String>();
-        mods.addAll(Arrays.asList(users.getJSONArray("mods").toString().split(",")));
 
     }
 
@@ -56,9 +53,5 @@ public class ConfigHandler {
 
     public int getPort() {
         return port;
-    }
-
-    public ArrayList<String> getMods() {
-        return mods;
     }
 }

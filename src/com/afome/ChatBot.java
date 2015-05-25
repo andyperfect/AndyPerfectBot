@@ -7,6 +7,9 @@ import java.io.OutputStreamWriter;
 import java.io.IOException;
 import java.net.Socket;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class ChatBot {
     ConfigHandler config;
     final long TEN_MINUTES_IN_MILLIS = 600000;
@@ -15,6 +18,7 @@ public class ChatBot {
     BufferedReader reader = null;
 
     UserDataList fullUserDataList;
+    ArrayList<String> moderators;
 
     boolean running = true;
 
@@ -37,11 +41,12 @@ public class ChatBot {
 
         connectToServer();
         joinChannel(config.getChannel());
+        sendChatMessage("/mods");
 
 
         // MAIN LOOP
         String line;
-        while (running && (line = reader.readLine( )) != null) {
+        while (running && (line = reader.readLine()) != null) {
             System.out.println("NEW LINE");
             System.out.println(line);
             ChatMessage message = new ChatMessage(line);
@@ -56,7 +61,11 @@ public class ChatBot {
             } else if (message.getMessageType() == ChatMessageType.PART) {
                 handlePartMessage(message);
             } else if (message.getMessageType() == ChatMessageType.CHAT) {
-                handleChatMessage(message);
+                if (message.getChannel().equalsIgnoreCase(config.getNick())) {
+                    handlePrivateMessage(message);
+                } else {
+                    handleChatMessage(message);
+                }
             }
 
             if (System.currentTimeMillis() - lastFileWrite >= TEN_MINUTES_IN_MILLIS) {
@@ -115,6 +124,15 @@ public class ChatBot {
         if (message.getMessage().equals("!uptime")) {
             long curTime = System.currentTimeMillis();
             sendChatMessage("The stream has been up for " + millisToReadableFormat(curTime - startTime));
+        }
+    }
+
+    public void handlePrivateMessage(ChatMessage message) {
+        if (message.getUser().equalsIgnoreCase(("jtv"))) {
+            if (message.getMessage().startsWith("The moderators of this room are:")) {
+                String moderatorList = message.getMessage().substring(message.getMessage().indexOf(":") + 1);
+                moderators = new ArrayList<String>(Arrays.asList(moderatorList.split(", ")));
+            }
         }
     }
 
