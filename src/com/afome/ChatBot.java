@@ -9,6 +9,7 @@ import java.net.Socket;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 public class ChatBot {
     ConfigHandler config;
@@ -96,6 +97,7 @@ public class ChatBot {
         userData.parted();
     }
 
+    //TODO Break out the individual commands into something a bit more dynamic (possibly their own methods?)
     public void handleChatMessage(ChatMessage message) throws Exception {
         UserData userData = fullUserDataList.findUser(message.getUser());
         if (userData == null) {
@@ -153,6 +155,33 @@ public class ChatBot {
                 }
             }
         }
+
+        if (message.getMessage().startsWith("!quote")) {
+            String[] splitLine = message.getMessage().split("\\s+");
+            if (splitLine.length == 1) {
+                Quote quote = getRandomQuote();
+                if (quote == null) {
+                    sendChatMessage("There are no quotes available");
+                } else {
+                    sendChatMessage("\"" + quote.getQuote() + "\" (" + quote.getDate() + ")");
+                }
+            } else if (splitLine.length >= 3 &&
+                    splitLine[1].equalsIgnoreCase("add") &&
+                    splitLine[2].startsWith("\"") &&
+                    splitLine[splitLine.length - 1].endsWith("\"")) {
+                //If There are at least 3 tokens, the first one is "!quote", the second one is "add",
+                //the third one starts with a quote and the last one ends with a quote, we're good
+                //Example: !quote add "this is a valid quote"
+
+                int firstQuoteIndex = message.getMessage().indexOf('"');
+                int lastQuoteIndex = message.getMessage().lastIndexOf('"');
+                String quoteString = message.getMessage().substring(firstQuoteIndex + 1, lastQuoteIndex);
+                if (quoteString.length() > 1) {
+                    quotes.add(new Quote(quoteString));
+                }
+            }
+        }
+
         if (message.getMessage().equals("!uptime")) {
             long curTime = System.currentTimeMillis();
             sendChatMessage("The stream has been up for " + millisToReadableFormat(curTime - startTime));
@@ -191,7 +220,7 @@ public class ChatBot {
         writer.flush();
 
         // Read lines from the server until it tells us we have connected.
-        String line = null;
+        String line;
         while ((line = reader.readLine( )) != null) {
             System.out.println("CONNECTING:"+ line);
             if (line.contains("004")) {
@@ -206,12 +235,22 @@ public class ChatBot {
         return false;
     }
 
+    public Quote getRandomQuote() {
+        if (quotes.size() == 0) {
+            return null;
+        } else {
+            Random rand = new Random();
+            return quotes.get(rand.nextInt(quotes.size()));
+        }
+
+    }
+
     public String millisToReadableFormat(long millis) {
         /*86400000 millis in a day
          *3600000 millis in an hour
          * 60000 millis in a minute
         */
-        String timeString = "";
+
         StringBuilder timeStringBuilder = new StringBuilder();
         long delta = millis;
 
