@@ -110,19 +110,47 @@ public class ChatBot {
             }
         }
 
-        if (message.getMessage().equals("!pp")) {
-            if (userData == null) {
-                sendChatMessage("User '" + message.getUser() + "' not yet in system");
-            } else {
-                sendChatMessage("User '" + message.getUser() + "' has been active for " + millisToReadableFormat(userData.getNumMillis()));
+        if (message.getMessage().startsWith("!pp")) {
+            String[] splitLine = message.getMessage().split("\\s+");
+            if (splitLine.length == 1) {
+                if (userData == null) {
+                    sendChatMessage(message.getUser() + " has never been in this channel");
+                } else {
+                    sendChatMessage(message.getUser() + " has been active for " + millisToReadableFormat(userData.getNumMillis()));
+                }
+            } else if (splitLine.length == 2) {
+                UserData otherUserData = fullUserDataList.findUser(splitLine[1].toLowerCase());
+                if (otherUserData == null) {
+                    sendChatMessage(splitLine[1] + " has never been in this channel");
+                } else {
+                    if (splitLine[1].equalsIgnoreCase(config.getNick())) {
+                        sendChatMessage("You don't need to know about me");
+                    } else {
+                        sendChatMessage(splitLine[1] + " has been active for " + millisToReadableFormat(otherUserData.getNumMillis()));
+                    }
+                }
             }
         }
 
-        if (message.getMessage().equals("!chat")) {
-            if (userData == null) {
-                sendChatMessage("User '" + message.getUser() + "' not yet in system");
-            } else {
-                sendChatMessage("User '" + message.getUser() + "' has sent " + userData.getChatCount() + " chat messages");
+        if (message.getMessage().startsWith("!chat")) {
+            String[] splitLine = message.getMessage().split("\\s+");
+            if (splitLine.length == 1) {
+                if (userData == null) {
+                    sendChatMessage(message.getUser() + " has never been in this channel");
+                } else {
+                    sendChatMessage(message.getUser() + "' has sent " + userData.getChatCount() + " chat messages");
+                }
+            } else if (splitLine.length == 2) {
+                UserData otherUserData = fullUserDataList.findUser(splitLine[1].toLowerCase());
+                if (otherUserData == null) {
+                    sendChatMessage(splitLine[1] + " has never been in this channel");
+                } else {
+                    if (splitLine[1].equalsIgnoreCase(config.getNick())) {
+                        sendChatMessage("You don't need to know about me");
+                    } else {
+                        sendChatMessage(splitLine[1] + " has sent " + otherUserData.getChatCount() + " chat messages");
+                    }
+                }
             }
         }
         if (message.getMessage().equals("!uptime")) {
