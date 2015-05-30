@@ -19,6 +19,7 @@ public class ChatBot {
 
     UserDataList fullUserDataList;
     ArrayList<String> moderators;
+    ArrayList<Quote> quotes;
 
     boolean running = true;
 
@@ -33,7 +34,8 @@ public class ChatBot {
         config = new ConfigHandler();
 
         DataFileIO fileIO = new DataFileIO();
-        fullUserDataList = fileIO.createDataFromFile();
+        quotes = fileIO.createQuoteListFromFile();
+        fullUserDataList = fileIO.createUserDataFromFile();
 
         Socket socket = new Socket(config.getServerName(), config.getPort());
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -70,12 +72,14 @@ public class ChatBot {
 
             if (System.currentTimeMillis() - lastFileWrite >= TEN_MINUTES_IN_MILLIS) {
                 fullUserDataList.updateAllUsers();
-                fileIO.writeDataToFile(fullUserDataList);
+                fileIO.writeUserDataToFile(fullUserDataList);
+                fileIO.writeQuoteListToFile(quotes);
                 lastFileWrite = System.currentTimeMillis();
             }
         }
         fullUserDataList.updateAllUsers();
-        fileIO.writeDataToFile(fullUserDataList);
+        fileIO.writeUserDataToFile(fullUserDataList);
+        fileIO.writeQuoteListToFile(quotes);
     }
 
     public UserData handleJoinMessage(ChatMessage message) {
