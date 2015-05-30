@@ -178,6 +178,9 @@ public class ChatBot {
                 String quoteString = message.getMessage().substring(firstQuoteIndex + 1, lastQuoteIndex);
                 if (quoteString.length() > 1) {
                     quotes.add(new Quote(quoteString));
+                    sendChatMessage("Added quote \"" + quoteString + "\"");
+                } else {
+                    sendChatMessage("Invalid quote length");
                 }
             }
         }
