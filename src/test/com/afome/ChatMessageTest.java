@@ -56,8 +56,17 @@ public void testGetMessageMillis() throws Exception {
 
 @Test
 public void testParseUserListMessage() throws Exception { 
-//TODO: Test goes here... 
+   String userListString1 = ":andyperfectbot.tmi.twitch.tv 353 andyperfectbot = #andyperfect :caneut kippersnatch pandatron76 mylittlewalrus andyperfect kraln glimerslol aurilliux";
+   String userListString2 = ":andyperfectbot.tmi.twitch.tv 353 andyperfectbot = #andyperfect :ninjadropshot zimmycakesrtg bigpapasj magicscrumpy t41thatguyjr";
 
+
+   ChatMessage message1 = new ChatMessage(userListString1);
+   Assert.assertEquals(ChatMessageType.USERLIST, message1.getMessageType());
+   Assert.assertArrayEquals(new String[]{"caneut", "kippersnatch", "pandatron76", "mylittlewalrus", "andyperfect", "kraln", "glimerslol", "aurilliux"}, message1.getUserList());
+
+   ChatMessage message2 = new ChatMessage(userListString2);
+   Assert.assertEquals(ChatMessageType.USERLIST, message2.getMessageType());
+   Assert.assertArrayEquals(new String[]{"ninjadropshot", "zimmycakesrtg", "bigpapasj", "magicscrumpy", "t41thatguyjr"}, message2.getUserList());
 } 
 
 @Test

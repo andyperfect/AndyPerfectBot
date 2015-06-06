@@ -56,7 +56,7 @@ public class ChatBot {
             if (message.getMessageType() == ChatMessageType.PING) {
                 replyToPing(line);
             } else if (message.getMessageType() == ChatMessageType.USERLIST) {
-                handleJoinMessage(message);
+                handleUserList(message);
             } else if (message.getMessageType() == ChatMessageType.USERLISTEND) {
 
             } else if (message.getMessageType() == ChatMessageType.JOIN) {
@@ -95,6 +95,21 @@ public class ChatBot {
     public void handlePartMessage(ChatMessage message) {
         UserData userData = fullUserDataList.findUser(message.getUser());
         userData.parted();
+    }
+
+    public void handleUserList(ChatMessage message) {
+        String[] users = message.getUserList();
+        if (users == null) {
+            //Log some kind of error that we parsed a message as a userlist incorrectly
+            return;
+        }
+        for (String user : users) {
+            UserData userData = fullUserDataList.findUser(user);
+            if (userData == null) {
+                userData = fullUserDataList.createNewUser(message.getUser());
+            }
+            userData.joined();
+        }
     }
 
     //TODO Break out the individual commands into something a bit more dynamic (possibly their own methods?)

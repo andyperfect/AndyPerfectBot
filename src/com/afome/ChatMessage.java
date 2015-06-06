@@ -8,6 +8,7 @@ public class ChatMessage {
     private String channel = "";
     private String message = "";
     private long messageMillis = -1;
+    private String[] userList = null;
 
 
     public ChatMessage(String line) {
@@ -35,7 +36,10 @@ public class ChatMessage {
     private void parseUserListMessage(String line) {
         messageType = ChatMessageType.USERLIST;
         int userIndex = line.indexOf(':', 1) +1;
-        user = line.substring(userIndex);
+        String userListString = line.substring(userIndex);
+        userList = userListString.split("\\s+");
+
+
 
     }
 
@@ -97,5 +101,9 @@ public class ChatMessage {
 
     public long getMessageMillis() {
         return messageMillis;
+    }
+
+    public String[] getUserList() {
+        return userList;
     }
 }
