@@ -94,6 +94,9 @@ public class ChatBot {
 
     public void handlePartMessage(ChatMessage message) {
         UserData userData = fullUserDataList.findUser(message.getUser());
+        if (userData == null) {
+            userData = fullUserDataList.createNewUser(message.getUser());
+        }
         userData.parted();
     }
 
