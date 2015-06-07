@@ -1,4 +1,4 @@
-package com.afome;
+package com.afome.ChatBot;
 
 /**
  * Created by Wooby on 4/17/2015.

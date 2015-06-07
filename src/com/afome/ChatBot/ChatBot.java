@@ -1,4 +1,4 @@
-package com.afome;
+package com.afome.ChatBot;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

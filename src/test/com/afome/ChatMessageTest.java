@@ -1,11 +1,11 @@
 package test.com.afome; 
 
-import com.afome.ChatMessageType;
+import com.afome.ChatBot.ChatMessageType;
 import org.junit.Test;
 import org.junit.Before; 
 import org.junit.After;
 import org.junit.Assert;
-import com.afome.ChatMessage;
+import com.afome.ChatBot.ChatMessage;
 
 public class ChatMessageTest {
 

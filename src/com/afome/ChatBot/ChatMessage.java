@@ -1,4 +1,4 @@
-package com.afome;
+package com.afome.ChatBot;
 
 public class ChatMessage {
 
