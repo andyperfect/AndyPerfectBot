@@ -49,25 +49,28 @@ public class ChatBot {
 
         // MAIN LOOP
         String line;
-        while (running && (line = reader.readLine()) != null) {
-            System.out.println("NEW LINE");
-            System.out.println(line);
-            ChatMessage message = new ChatMessage(line);
-            if (message.getMessageType() == ChatMessageType.PING) {
-                replyToPing(line);
-            } else if (message.getMessageType() == ChatMessageType.USERLIST) {
-                handleUserList(message);
-            } else if (message.getMessageType() == ChatMessageType.USERLISTEND) {
+        while (running) {
+            while (reader.ready()) {
+                line = reader.readLine();
+                System.out.println("NEW LINE");
+                System.out.println(line);
+                ChatMessage message = new ChatMessage(line);
+                if (message.getMessageType() == ChatMessageType.PING) {
+                    replyToPing(line);
+                } else if (message.getMessageType() == ChatMessageType.USERLIST) {
+                    handleUserList(message);
+                } else if (message.getMessageType() == ChatMessageType.USERLISTEND) {
 
-            } else if (message.getMessageType() == ChatMessageType.JOIN) {
-                handleJoinMessage(message);
-            } else if (message.getMessageType() == ChatMessageType.PART) {
-                handlePartMessage(message);
-            } else if (message.getMessageType() == ChatMessageType.CHAT) {
-                if (message.getChannel().equalsIgnoreCase(config.getNick())) {
-                    handlePrivateMessage(message);
-                } else {
-                    handleChatMessage(message);
+                } else if (message.getMessageType() == ChatMessageType.JOIN) {
+                    handleJoinMessage(message);
+                } else if (message.getMessageType() == ChatMessageType.PART) {
+                    handlePartMessage(message);
+                } else if (message.getMessageType() == ChatMessageType.CHAT) {
+                    if (message.getChannel().equalsIgnoreCase(config.getNick())) {
+                        handlePrivateMessage(message);
+                    } else {
+                        handleChatMessage(message);
+                    }
                 }
             }
 
@@ -77,7 +80,9 @@ public class ChatBot {
                 fileIO.writeQuoteListToFile(quotes);
                 lastFileWrite = System.currentTimeMillis();
             }
+            Thread.sleep(100);
         }
+
         fullUserDataList.updateAllUsers();
         fileIO.writeUserDataToFile(fullUserDataList);
         fileIO.writeQuoteListToFile(quotes);
