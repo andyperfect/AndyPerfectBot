@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-public class ChatBot {
+public class ChatBot implements Runnable {
     ConfigHandler config;
     final long TEN_MINUTES_IN_MILLIS = 600000;
 
@@ -31,61 +31,64 @@ public class ChatBot {
 
     }
 
-    public void start() throws Exception {
-        config = new ConfigHandler();
+    public void run() {
+        try {
+            config = new ConfigHandler();
 
-        DataFileIO fileIO = new DataFileIO();
-        quotes = fileIO.createQuoteListFromFile();
-        fullUserDataList = fileIO.createUserDataFromFile();
+            DataFileIO fileIO = new DataFileIO();
+            quotes = fileIO.createQuoteListFromFile();
+            fullUserDataList = fileIO.createUserDataFromFile();
 
-        Socket socket = new Socket(config.getServerName(), config.getPort());
-        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            Socket socket = new Socket(config.getServerName(), config.getPort());
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        connectToServer();
-        joinChannel(config.getChannel());
-        sendChatMessage("/mods");
+            connectToServer();
+            joinChannel(config.getChannel());
+            sendChatMessage("/mods");
 
+            // MAIN LOOP
+            String line;
+            while (running) {
+                while (reader.ready()) {
+                    line = reader.readLine();
+                    System.out.println("NEW LINE");
+                    System.out.println(line);
+                    ChatMessage message = new ChatMessage(line);
+                    if (message.getMessageType() == ChatMessageType.PING) {
+                        replyToPing(line);
+                    } else if (message.getMessageType() == ChatMessageType.USERLIST) {
+                        handleUserList(message);
+                    } else if (message.getMessageType() == ChatMessageType.USERLISTEND) {
 
-        // MAIN LOOP
-        String line;
-        while (running) {
-            while (reader.ready()) {
-                line = reader.readLine();
-                System.out.println("NEW LINE");
-                System.out.println(line);
-                ChatMessage message = new ChatMessage(line);
-                if (message.getMessageType() == ChatMessageType.PING) {
-                    replyToPing(line);
-                } else if (message.getMessageType() == ChatMessageType.USERLIST) {
-                    handleUserList(message);
-                } else if (message.getMessageType() == ChatMessageType.USERLISTEND) {
-
-                } else if (message.getMessageType() == ChatMessageType.JOIN) {
-                    handleJoinMessage(message);
-                } else if (message.getMessageType() == ChatMessageType.PART) {
-                    handlePartMessage(message);
-                } else if (message.getMessageType() == ChatMessageType.CHAT) {
-                    if (message.getChannel().equalsIgnoreCase(config.getNick())) {
-                        handlePrivateMessage(message);
-                    } else {
-                        handleChatMessage(message);
+                    } else if (message.getMessageType() == ChatMessageType.JOIN) {
+                        handleJoinMessage(message);
+                    } else if (message.getMessageType() == ChatMessageType.PART) {
+                        handlePartMessage(message);
+                    } else if (message.getMessageType() == ChatMessageType.CHAT) {
+                        if (message.getChannel().equalsIgnoreCase(config.getNick())) {
+                            handlePrivateMessage(message);
+                        } else {
+                            handleChatMessage(message);
+                        }
                     }
                 }
+
+                if (System.currentTimeMillis() - lastFileWrite >= TEN_MINUTES_IN_MILLIS) {
+                    fullUserDataList.updateAllUsers();
+                    fileIO.writeUserDataToFile(fullUserDataList);
+                    fileIO.writeQuoteListToFile(quotes);
+                    lastFileWrite = System.currentTimeMillis();
+                }
+                Thread.sleep(100);
             }
 
-            if (System.currentTimeMillis() - lastFileWrite >= TEN_MINUTES_IN_MILLIS) {
-                fullUserDataList.updateAllUsers();
-                fileIO.writeUserDataToFile(fullUserDataList);
-                fileIO.writeQuoteListToFile(quotes);
-                lastFileWrite = System.currentTimeMillis();
-            }
-            Thread.sleep(100);
+            fullUserDataList.updateAllUsers();
+            fileIO.writeUserDataToFile(fullUserDataList);
+            fileIO.writeQuoteListToFile(quotes);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
-
-        fullUserDataList.updateAllUsers();
-        fileIO.writeUserDataToFile(fullUserDataList);
-        fileIO.writeQuoteListToFile(quotes);
     }
 
     public UserData handleJoinMessage(ChatMessage message) {
