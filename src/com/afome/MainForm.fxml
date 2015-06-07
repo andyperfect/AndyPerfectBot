@@ -6,32 +6,33 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<GridPane fx:controller="com.afome.Controller"
-          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
-    <padding><Insets top="25" right="25" bottom="10" left="25"/></padding>
+<BorderPane fx:controller="com.afome.Controller" xmlns:fx="http://javafx.com/fxml"
+        prefWidth="1024" prefHeight="768">
+    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
 
-    <Text text="Welcome"
-          GridPane.columnIndex="0" GridPane.rowIndex="0"
-          GridPane.columnSpan="2"/>
+    <left>
 
-    <Label text="User Name:"
-           GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    </left>
+    <center>
+        <VBox spacing="5">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" ></Insets>
+            </padding>
+            <TextArea prefRowCount="20" prefColumnCount="50"/>
+            <TextField prefColumnCount="50"/>
+        </VBox>
 
-    <TextField
-            GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-    <Label text="Password:"
-           GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+    </center>
+    <right>
+        <VBox spacing="5">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" ></Insets>
+            </padding>
+            <Button text="Start Bot" onAction="#handleStartBotButtonAction"/>
+            <Button text="Stop Bot" onAction="#handleStopBotButtonAction"/>
 
-    <PasswordField fx:id="passwordField"
-                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        </VBox>
+    </right>
 
-    <HBox spacing="10" alignment="bottom_right"
-          GridPane.columnIndex="1" GridPane.rowIndex="4">
-        <Button text="Sign In"
-                onAction="#handleSubmitButtonAction"/>
-    </HBox>
-
-    <Text fx:id="actiontarget"
-          GridPane.columnIndex="1" GridPane.rowIndex="6"/>
-</GridPane>
+</BorderPane>

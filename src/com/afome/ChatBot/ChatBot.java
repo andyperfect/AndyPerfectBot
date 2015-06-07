@@ -32,6 +32,7 @@ public class ChatBot implements Runnable {
     }
 
     public void run() {
+        System.out.println("Bot starting");
         try {
             config = new ConfigHandler();
 
@@ -89,6 +90,8 @@ public class ChatBot implements Runnable {
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+
+        System.out.println("Bot terminating");
     }
 
     public UserData handleJoinMessage(ChatMessage message) {
@@ -134,7 +137,7 @@ public class ChatBot implements Runnable {
         //MOD COMMANDS
         if (userData.getUser().equalsIgnoreCase(config.getOp())) {
             if (message.getMessage().equals("!stopbot")) {
-                running = false;
+                stopBot();
             }
         }
 
@@ -272,6 +275,10 @@ public class ChatBot implements Runnable {
             return quotes.get(rand.nextInt(quotes.size()));
         }
 
+    }
+
+    public void stopBot() {
+        running = false;
     }
 
     public String millisToReadableFormat(long millis) {

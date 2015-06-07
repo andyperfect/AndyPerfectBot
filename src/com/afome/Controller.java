@@ -1,13 +1,19 @@
 package com.afome;
 
+import com.afome.ChatBot.ChatBot;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.text.Text;
 
 public class Controller {
-    @FXML private Text actiontarget;
+    ChatBot bot;
 
-    @FXML protected void handleSubmitButtonAction(ActionEvent event) {
-        actiontarget.setText("Sign in button pressed");
+    @FXML protected void handleStartBotButtonAction(ActionEvent event) {
+        bot = new ChatBot();
+        Thread chatBotThread = new Thread(bot);
+        chatBotThread.start();
+    }
+
+    @FXML protected void handleStopBotButtonAction(ActionEvent event) {
+        bot.stopBot();
     }
 }

@@ -16,9 +16,6 @@ public class APBotMain extends Application{
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Thread chatBotThread = new Thread(new ChatBot());
-        chatBotThread.start();
-
         Parent root = FXMLLoader.load(getClass().getResource("MainForm.fxml"));
         primaryStage.setTitle("Hello World");
         primaryStage.setScene(new Scene(root, 1024, 768));
