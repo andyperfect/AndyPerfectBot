@@ -63,8 +63,10 @@ public class UserData implements Comparable<UserData> {
     public int compareTo(UserData other) {
         if (other.getNumMillis() < this.getNumMillis()) {
             return -1;
-        } else {
+        } else if (other.getNumMillis() > this.getNumMillis()) {
             return 1;
+        } else {
+            return 0;
         }
     }
 

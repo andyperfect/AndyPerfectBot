@@ -1,6 +1,7 @@
 package com.afome.ChatBot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class UserDataList extends ArrayList<UserData> {
 
@@ -17,6 +18,7 @@ public class UserDataList extends ArrayList<UserData> {
         for (UserData userData : this) {
             userData.updateTime();
         }
+        Collections.sort(this);
     }
 
     public UserData createNewUser(String username) {
