@@ -22,13 +22,15 @@ public class ChatBot implements Runnable {
     ArrayList<String> moderators;
     ArrayList<Quote> quotes;
 
+    private ArrayList<ChatMessage> chatLog;
+
     boolean running = true;
 
     long lastFileWrite = System.currentTimeMillis();
     long startTime = System.currentTimeMillis();
 
     public ChatBot() {
-
+        chatLog = new ArrayList<ChatMessage>();
     }
 
     public void run() {
@@ -70,6 +72,7 @@ public class ChatBot implements Runnable {
                         if (message.getChannel().equalsIgnoreCase(config.getNick())) {
                             handlePrivateMessage(message);
                         } else {
+                            chatLog.add(message);
                             handleChatMessage(message);
                         }
                     }
@@ -330,5 +333,9 @@ public class ChatBot implements Runnable {
         }
 
         return timeStringBuilder.toString();
+    }
+
+    public ArrayList<ChatMessage> getChatLog() {
+        return chatLog;
     }
 }

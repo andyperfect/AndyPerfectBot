@@ -18,7 +18,7 @@
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10" ></Insets>
             </padding>
-            <TextArea prefRowCount="20" prefColumnCount="50"/>
+            <TextArea fx:id="chatTextArea" prefRowCount="20" prefColumnCount="50" />
             <TextField prefColumnCount="50"/>
         </VBox>
 

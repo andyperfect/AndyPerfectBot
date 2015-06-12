@@ -106,4 +106,8 @@ public class ChatMessage {
     public String[] getUserList() {
         return userList;
     }
+
+    public String toString() {
+        return user + ": " + message;
+    }
 }
