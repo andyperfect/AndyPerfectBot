@@ -24,7 +24,7 @@ public class ChatBot implements Runnable {
 
     private ArrayList<ChatMessage> chatLog;
 
-    boolean running = true;
+    boolean running = false;
 
     long lastFileWrite = System.currentTimeMillis();
     long startTime = System.currentTimeMillis();
@@ -48,7 +48,9 @@ public class ChatBot implements Runnable {
 
             connectToServer();
             joinChannel(config.getChannel());
+            running = true;
             sendChatMessage("/mods");
+
 
             // MAIN LOOP
             String line;
@@ -282,6 +284,10 @@ public class ChatBot implements Runnable {
 
     public void stopBot() {
         running = false;
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     public String millisToReadableFormat(long millis) {
