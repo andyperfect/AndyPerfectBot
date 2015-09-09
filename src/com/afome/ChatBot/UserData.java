@@ -2,6 +2,7 @@ package com.afome.ChatBot;
 
 public class UserData implements Comparable<UserData> {
     private String user = "";
+    private UserType userType;
     private long numMillis = 0;
     private int chatCount = 0;
     private long joinTimeMillis = -1;
@@ -17,6 +18,7 @@ public class UserData implements Comparable<UserData> {
         this.user = user;
         this.numMillis = numMillis;
         this.chatCount = chatCount;
+        this.userType = UserType.USER;
     }
 
     public void joined() {
@@ -61,13 +63,7 @@ public class UserData implements Comparable<UserData> {
 
     @Override
     public int compareTo(UserData other) {
-        if (other.getNumMillis() < this.getNumMillis()) {
-            return -1;
-        } else if (other.getNumMillis() > this.getNumMillis()) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return this.getUser().compareTo(other.getUser());
     }
 
     public String getUser() {
@@ -93,5 +89,13 @@ public class UserData implements Comparable<UserData> {
     public long getConnectionTimeInMinutes() {
         updateTime();
         return this.numMillis / 60000L;
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 }
