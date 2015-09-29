@@ -22,5 +22,4 @@ public class APBotMain extends Application{
 
         primaryStage.show();
     }
-
 }

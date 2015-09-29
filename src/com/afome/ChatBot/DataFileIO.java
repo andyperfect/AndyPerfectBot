@@ -14,6 +14,8 @@ public class DataFileIO {
     private String dateTimeFormatString = "yyyy-MM-dd";
     DateTimeFormatter quoteDateFormatter = null;
 
+    DBConnection db = new DBConnection();
+
     public DataFileIO() {
         quoteDateFormatter = DateTimeFormatter.ofPattern(dateTimeFormatString);
     }
@@ -49,6 +51,9 @@ public class DataFileIO {
             for (UserData userData : dataList) {
                 writer.println(userData.getUser() + " " + String.valueOf(userData.getNumMillis() + " " + String.valueOf(userData.getChatCount())));
             }
+            //Update the whole user database in one go
+            System.out.println("Updating User Table");
+            db.batchUserUpdate(dataList);
             writer.close();
         } catch (Exception e) {
             System.out.println("LOG: FAILED TO WRITE FILE: " + e.getMessage());
