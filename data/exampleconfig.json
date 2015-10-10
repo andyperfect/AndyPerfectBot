@@ -6,6 +6,7 @@
   "port":80,
   "users": {
     "op":"the_special_user_that_has_access_to_run_special_commands"
-  }
+  },
+  "time_needed_to_quote":86400000
 
 }

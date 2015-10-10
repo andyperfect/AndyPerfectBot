@@ -15,6 +15,7 @@ public class ConfigHandler {
     private String channel = "";
     private String op = "";
     private int port = -1;
+    private long timeNeededToQuote = -1;
 
     public ConfigHandler() throws IOException {
         String configContent = new String(Files.readAllBytes(Paths.get("data/config.json")));
@@ -25,6 +26,7 @@ public class ConfigHandler {
         password = jsonConfigObject.getString("password");
         channel = jsonConfigObject.getString("channel");
         port = jsonConfigObject.getInt("port");
+        timeNeededToQuote = jsonConfigObject.getLong("time_needed_to_quote");
 
         JSONObject users = jsonConfigObject.getJSONObject("users");
         op = users.getString("op");
@@ -53,5 +55,9 @@ public class ConfigHandler {
 
     public int getPort() {
         return port;
+    }
+
+    public long getTimeNeededToQuote() {
+        return timeNeededToQuote;
     }
 }

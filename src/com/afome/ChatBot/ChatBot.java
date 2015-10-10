@@ -190,7 +190,8 @@ public class ChatBot implements Runnable {
             }
         }
 
-        if (message.getMessage().startsWith("!quote")) {
+        //Only users with that have been in chat for the configured time are allowed to use this option
+        if (message.getMessage().startsWith("!quote") && userData.getNumMillis() > config.getTimeNeededToQuote()) {
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
                 Quote quote = getRandomQuote();
