@@ -39,7 +39,7 @@ public class ChatBot implements Runnable {
 
             DataFileIO fileIO = new DataFileIO();
             quotes = fileIO.createQuoteListFromFile();
-            fullUserDataList = fileIO.createUserDataFromFile();
+            fullUserDataList = fileIO.createUserDataFromDatabase();
 
             Socket socket = new Socket(config.getServerName(), config.getPort());
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -81,7 +81,7 @@ public class ChatBot implements Runnable {
 
                 if (System.currentTimeMillis() - lastFileWrite >= TEN_MINUTES_IN_MILLIS) {
                     fullUserDataList.updateAllUsers();
-                    fileIO.writeUserDataToFile(fullUserDataList);
+                    fileIO.writeUserDataToDatabase(fullUserDataList);
                     fileIO.writeQuoteListToFile(quotes);
                     lastFileWrite = System.currentTimeMillis();
                 }
@@ -89,7 +89,7 @@ public class ChatBot implements Runnable {
             }
 
             fullUserDataList.updateAllUsers();
-            fileIO.writeUserDataToFile(fullUserDataList);
+            fileIO.writeUserDataToDatabase(fullUserDataList);
             fileIO.writeQuoteListToFile(quotes);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());

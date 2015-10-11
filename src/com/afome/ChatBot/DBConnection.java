@@ -17,6 +17,26 @@ public class DBConnection {
         }
     }
 
+    public UserDataList getAllUserInfo() {
+        UserDataList returnList = new UserDataList();
+        try {
+            if (conn != null) {
+                Statement statement = conn.createStatement();
+                statement.setQueryTimeout(10);
+                String queryString = String.format(
+                        "SELECT u.username, u.timeconnected, u.chatcount " +
+                        "FROM user as u");
+                ResultSet rs = statement.executeQuery(queryString);
+                while (rs.next()) {
+                    returnList.add(new UserData(rs.getString("username"), rs.getLong("timeconnected"), rs.getInt("chatcount" )));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return returnList;
+    }
+
     public void getUserConnectionInfo(String username) {
         try {
             if (conn != null) {

@@ -20,44 +20,12 @@ public class DataFileIO {
         quoteDateFormatter = DateTimeFormatter.ofPattern(dateTimeFormatString);
     }
 
-    public UserDataList createUserDataFromFile() {
-        UserDataList userDataList = new UserDataList();
-        Scanner fileScanner = null;
-        try {
-            fileScanner = new Scanner(new File(userDatafilePath));
-        } catch (Exception e) {
-            System.out.println("LOG: FAILED TO READ FILE: " + e.getMessage());
-        }
-
-        while (fileScanner.hasNextLine()) {
-            String line = fileScanner.nextLine();
-            if (line.length() > 0) {
-                String[] splitLine = line.split("\\s+");
-                if (splitLine.length != 3) {
-                    System.out.println("Unable to parse line: " + line);
-                } else {
-                    userDataList.add(new UserData(splitLine[0], Long.parseLong(splitLine[1]), Integer.parseInt(splitLine[2])));
-                }
-            } else {
-                System.out.println("LOG: Skipping line parsing on line: " + line);
-            }
-        }
-        return userDataList;
+    public UserDataList createUserDataFromDatabase() {
+        return db.getAllUserInfo();
     }
 
-    public void writeUserDataToFile(UserDataList dataList) {
-        try {
-            PrintWriter writer = new PrintWriter(userDatafilePath);
-            for (UserData userData : dataList) {
-                writer.println(userData.getUser() + " " + String.valueOf(userData.getNumMillis() + " " + String.valueOf(userData.getChatCount())));
-            }
-            //Update the whole user database in one go
-            System.out.println("Updating User Table");
-            db.batchUserUpdate(dataList);
-            writer.close();
-        } catch (Exception e) {
-            System.out.println("LOG: FAILED TO WRITE FILE: " + e.getMessage());
-        }
+    public void writeUserDataToDatabase(UserDataList dataList) {
+        db.batchUserUpdate(dataList);
     }
 
     public ArrayList<Quote> createQuoteListFromFile() {
