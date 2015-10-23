@@ -1,9 +1,10 @@
 package com.afome.ChatBot;
 
+import java.io.File;
 import java.sql.*;
 
 public class DBConnection {
-    private String dbURL = "jdbc:sqlite:data\\APTwitchBotDB.db";
+    private String dbURL = "jdbc:sqlite:data" + File.separator + "APTwitchBotDB.db";
     Connection conn = null;
 
     public DBConnection() {

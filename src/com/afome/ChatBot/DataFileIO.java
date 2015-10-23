@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class DataFileIO {
-    private String userDatafilePath = "data/userdata.txt";
-    private String quotesFilePath = "data/quotedata.txt";
+    private String userDatafilePath = "data" + File.separator + "userdata.txt";
+    private String quotesFilePath = "data" + File.separator + "quotedata.txt";
 
     private String dateTimeFormatString = "yyyy-MM-dd";
     DateTimeFormatter quoteDateFormatter = null;

@@ -2,6 +2,7 @@ package com.afome.ChatBot;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -18,7 +19,7 @@ public class ConfigHandler {
     private long timeNeededToQuote = -1;
 
     public ConfigHandler() throws IOException {
-        String configContent = new String(Files.readAllBytes(Paths.get("data/config.json")));
+        String configContent = new String(Files.readAllBytes(Paths.get("data" + File.separator + "config.json")));
         JSONObject jsonConfigObject = new JSONObject(configContent);
 
         serverName = jsonConfigObject.getString("servername");
