@@ -26,4 +26,15 @@ public class UserDataList extends ArrayList<UserData> {
         add(newUser);
         return newUser;
     }
+
+    public void assignModerators(ArrayList<String> mods) {
+        for (String mod : mods) {
+            for (UserData userData : this) {
+                if (mod.equalsIgnoreCase(userData.getUser())) {
+                    userData.setUserType(UserType.MODERATOR);
+                }
+            }
+        }
+
+    }
 }

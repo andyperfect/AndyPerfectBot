@@ -1,5 +1,6 @@
 package com.afome.ChatBot;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -15,6 +16,7 @@ public class ConfigHandler {
     private String password = "";
     private String channel = "";
     private String op = "";
+    private ArrayList<String> mods;
     private int port = -1;
     private long timeNeededToQuote = -1;
 
@@ -31,6 +33,14 @@ public class ConfigHandler {
 
         JSONObject users = jsonConfigObject.getJSONObject("users");
         op = users.getString("op");
+
+        mods = new ArrayList<String>();
+        JSONArray modJsonList = users.getJSONArray("moderators");
+        for (int i = 0; i < modJsonList.length(); i++) {
+            mods.add(modJsonList.getString(i));
+        }
+
+
 
     }
 
@@ -52,6 +62,10 @@ public class ConfigHandler {
 
     public String getOp() {
         return op;
+    }
+
+    public ArrayList<String> getMods() {
+        return mods;
     }
 
     public int getPort() {

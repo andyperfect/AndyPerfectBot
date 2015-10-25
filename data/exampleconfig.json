@@ -5,7 +5,11 @@
   "channel":"#mychannel",
   "port":80,
   "users": {
-    "op":"the_special_user_that_has_access_to_run_special_commands"
+    "op":"the_special_user_that_has_access_to_run_special_commands",
+    "moderators": [
+      "user1",
+      "user2"
+    ]
   },
   "time_needed_to_quote":86400000
 

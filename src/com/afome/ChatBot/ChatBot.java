@@ -40,15 +40,17 @@ public class ChatBot implements Runnable {
             DataFileIO fileIO = new DataFileIO();
             quotes = fileIO.createQuoteListFromFile();
             fullUserDataList = fileIO.createUserDataFromDatabase();
+            fullUserDataList.assignModerators(config.getMods());
 
             Socket socket = new Socket(config.getServerName(), config.getPort());
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
+            System.exit(0);
+
             connectToServer();
             joinChannel(config.getChannel());
             running = true;
-            sendChatMessage("/mods");
 
 
             // MAIN LOOP
@@ -227,29 +229,11 @@ public class ChatBot implements Runnable {
     }
 
     public void handlePrivateMessage(ChatMessage message) {
-        if (message.getUser().equalsIgnoreCase(("jtv"))) {
-            if (message.getMessage().startsWith("The moderators of this room are:")) {
-                String moderatorList = message.getMessage().substring(message.getMessage().indexOf(":") + 1);
-                ArrayList<String> moderators = new ArrayList<String>(Arrays.asList(moderatorList.split(", ")));
-
-                //Iterate over all users and set them to moderators as necessary
-                for (UserData userData : fullUserDataList) {
-                    for (String mod : moderators) {
-                        if (userData.getUser().equalsIgnoreCase(mod)) {
-                            userData.setUserType(UserType.MODERATOR);
-
-                            //Remove it so there's slightly less to iterate over in the future
-                            moderators.remove(mod);
-                        }
-                    }
-
-                }
-            }
-        }
+        return;
     }
 
     public void sendChatMessage(String message) throws Exception {
-        System.out.println("LOG: Sending a chat message");
+        System.out.println("LOG: Sending a chat message: " + message);
         writer.write("PRIVMSG " + config.getChannel() + " :" + message + "\r\n");
         writer.flush();
     }
