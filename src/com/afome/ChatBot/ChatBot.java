@@ -46,12 +46,9 @@ public class ChatBot implements Runnable {
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            System.exit(0);
-
             connectToServer();
             joinChannel(config.getChannel());
             running = true;
-
 
             // MAIN LOOP
             String line;
@@ -139,6 +136,11 @@ public class ChatBot implements Runnable {
             userData = fullUserDataList.createNewUser(message.getUser());
         }
         userData.handleChatMessage();
+
+        //If bot ban is enabled, the user has sent only 1 message and it's a link, insta-ban
+        if (config.isBotBanEnabled() && userData.getChatCount() <= 1 && ChatBotUtils.containsLink(message.getMessage())) {
+            sendChatMessage(".ban " + message.getUser());
+        }
 
         //OP COMMANDS
         if (userData.getUser().equalsIgnoreCase(config.getOp())) {

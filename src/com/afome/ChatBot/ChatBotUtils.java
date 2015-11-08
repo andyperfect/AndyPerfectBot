@@ -1,6 +1,13 @@
 package com.afome.ChatBot;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ChatBotUtils {
+
+    public static final String URLRegex = "(https?:\\/\\/)?(www\\.)?([a-zA-Z0-9]+\\.)+([a-z]{3}|[a-z]{2})";
+
+
     public static String millisToReadableFormat(long millis) {
         /*86400000 millis in a day
          *3600000 millis in an hour
@@ -50,5 +57,11 @@ public class ChatBotUtils {
         }
 
         return timeStringBuilder.toString();
+    }
+
+    public static boolean containsLink(String input) {
+        Pattern pattern = Pattern.compile(URLRegex);
+        Matcher m = pattern.matcher(input);
+        return m.find();
     }
 }
