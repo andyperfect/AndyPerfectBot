@@ -1,13 +1,18 @@
 package com.afome.ChatBot;
 
+import com.afome.APBotMain;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DataFileIO {
+    private static final Logger log = Logger.getLogger(APBotMain.class.getName());
     private String userDatafilePath = "data" + File.separator + "userdata.txt";
     private String quotesFilePath = "data" + File.separator + "quotedata.txt";
 
@@ -25,7 +30,9 @@ public class DataFileIO {
     }
 
     public void writeUserDataToDatabase(UserDataList dataList) {
+        log.log(Level.INFO, "Begin writing user data to database");
         db.batchUserUpdate(dataList);
+        log.log(Level.INFO, "Finish writing user data to database");
     }
 
     public ArrayList<Quote> createQuoteListFromFile() {

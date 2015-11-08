@@ -1,5 +1,7 @@
 package com.afome.ChatBot;
 
+import com.afome.APBotMain;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -8,12 +10,15 @@ import java.io.IOException;
 import java.net.Socket;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class ChatBot implements Runnable {
+    private static final Logger log = Logger.getLogger(APBotMain.class.getName());
     ConfigHandler config;
-    final long TEN_MINUTES_IN_MILLIS = 600000;
+
 
     BufferedWriter writer = null;
     BufferedReader reader = null;
@@ -33,8 +38,8 @@ public class ChatBot implements Runnable {
     }
 
     public void run() {
-        System.out.println("Bot starting");
         try {
+            log.log(Level.INFO, "Starting bot");
             config = new ConfigHandler();
 
             DataFileIO fileIO = new DataFileIO();
@@ -78,7 +83,7 @@ public class ChatBot implements Runnable {
                     }
                 }
 
-                if (System.currentTimeMillis() - lastFileWrite >= TEN_MINUTES_IN_MILLIS) {
+                if (System.currentTimeMillis() - lastFileWrite >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
                     fullUserDataList.updateAllUsers();
                     fileIO.writeUserDataToDatabase(fullUserDataList);
                     fileIO.writeQuoteListToFile(quotes);
@@ -93,8 +98,7 @@ public class ChatBot implements Runnable {
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
-
-        System.out.println("Bot terminating");
+        log.log(Level.INFO, "Terminating bot");
     }
 
     public UserData handleJoinMessage(ChatMessage message) {

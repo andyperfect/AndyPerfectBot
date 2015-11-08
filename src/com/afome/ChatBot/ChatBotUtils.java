@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 public class ChatBotUtils {
 
     public static final String URLRegex = "(https?:\\/\\/)?(www\\.)?([a-zA-Z0-9]+\\.)+([a-z]{3}|[a-z]{2})";
+    public static final long TEN_MINUTES_IN_MILLIS = 600000;
 
 
     public static String millisToReadableFormat(long millis) {
