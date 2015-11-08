@@ -143,7 +143,7 @@ public class ChatBot implements Runnable {
 
         //If bot ban is enabled, the user has sent only 1 message and it's a link, insta-ban
         if (config.isBotBanEnabled() && userData.getChatCount() <= 1 && ChatBotUtils.containsLink(message.getMessage())) {
-            sendChatMessage(".ban " + message.getUser());
+            banUser(message, "First chat message contained a link. Assumed bot");
         }
 
         //OP COMMANDS
@@ -284,6 +284,18 @@ public class ChatBot implements Runnable {
             return quotes.get(rand.nextInt(quotes.size()));
         }
 
+    }
+
+    public void banUser(String user, String reason) throws Exception {
+        log.log(Level.INFO, "Banning user {0}: {1}", new Object[]{user, reason});
+        sendChatMessage("/ban" + user);
+        sendChatMessage("User " + user + " has been banned: " + reason);
+    }
+
+    public void banUser(ChatMessage message, String reason) throws Exception {
+        log.log(Level.INFO, "Banning user {0} after message {1}: {2}", new Object[]{message.getUser(), message.getMessage(), reason});
+        sendChatMessage("/ban " + message.getUser());
+        sendChatMessage("User " + message.getUser() + " has been banned: " + reason);
     }
 
     public void stopBot() {
