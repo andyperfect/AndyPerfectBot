@@ -84,15 +84,12 @@ public class DBConnection {
         try {
             if (conn != null) {
                 conn.setAutoCommit(false);
-                String queryString =
-                        "UPDATE user " +
-                        "SET timeconnected=?,chatcount=? " +
-                        "WHERE username=?;";
+                String queryString = "INSERT OR REPLACE INTO user (username, timeconnected, chatcount) VALUES (?, ?, ?);";
                 PreparedStatement pStatement = conn.prepareStatement(queryString);
                 for (UserData userData : dataList) {
-                    pStatement.setLong(1, userData.getNumMillis());
-                    pStatement.setInt(2, userData.getChatCount());
-                    pStatement.setString(3, userData.getUser());
+                    pStatement.setString(1, userData.getUser());
+                    pStatement.setLong(2, userData.getNumMillis());
+                    pStatement.setInt(3, userData.getChatCount());
                     pStatement.addBatch();
                 }
                 pStatement.executeBatch();
