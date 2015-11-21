@@ -30,8 +30,10 @@ public class ChatBot implements Runnable {
 
     boolean running = false;
 
-    long lastFileWrite = System.currentTimeMillis();
+    long lastIterationTime = System.currentTimeMillis();
     long startTime = System.currentTimeMillis();
+
+    DataFileIO fileIO;
 
     public ChatBot() {
         chatLog = new ArrayList<ChatMessage>();
@@ -42,7 +44,7 @@ public class ChatBot implements Runnable {
             log.log(Level.INFO, "Starting bot");
             config = new ConfigHandler();
 
-            DataFileIO fileIO = new DataFileIO();
+            fileIO = new DataFileIO();
             quotes = fileIO.createQuoteListFromFile();
             fullUserDataList = fileIO.createUserDataFromDatabase();
             fullUserDataList.assignModerators(config.getMods());
@@ -83,11 +85,8 @@ public class ChatBot implements Runnable {
                     }
                 }
 
-                if (System.currentTimeMillis() - lastFileWrite >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
-                    fullUserDataList.updateAllUsers();
-                    fileIO.writeUserDataToDatabase(fullUserDataList);
-                    fileIO.writeQuoteListToFile(quotes);
-                    lastFileWrite = System.currentTimeMillis();
+                if (System.currentTimeMillis() - lastIterationTime >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
+                    startIteration();
                 }
                 Thread.sleep(100);
             }
@@ -131,6 +130,18 @@ public class ChatBot implements Runnable {
             }
             userData.joined();
         }
+    }
+
+    public void startIteration() {
+        ArrayList<String> usersInChat = TwitchUtils.getUsersInChat(config.getChannel());
+        for (String user : usersInChat) {
+            fullUserDataList.findUser(user).joined();
+        }
+
+        fullUserDataList.updateAllUsers();
+        fileIO.writeUserDataToDatabase(fullUserDataList);
+        fileIO.writeQuoteListToFile(quotes);
+        lastIterationTime = System.currentTimeMillis();
     }
 
     //TODO Break out the individual commands into something a bit more dynamic (possibly their own methods?)
@@ -309,4 +320,6 @@ public class ChatBot implements Runnable {
     public ArrayList<ChatMessage> getChatLog() {
         return chatLog;
     }
+
+
 }

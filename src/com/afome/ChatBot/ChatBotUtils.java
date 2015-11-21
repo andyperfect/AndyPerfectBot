@@ -2,6 +2,7 @@ package com.afome.ChatBot;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
 
 public class ChatBotUtils {
 
