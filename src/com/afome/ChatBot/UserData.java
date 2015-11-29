@@ -66,6 +66,14 @@ public class UserData implements Comparable<UserData> {
         return this.getUser().compareTo(other.getUser());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof UserData) {
+            return ((UserData) o).getUser().equals(this.getUser());
+        }
+        return false;
+    }
+
     public String getUser() {
         return user;
     }

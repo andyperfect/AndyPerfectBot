@@ -30,9 +30,7 @@ public class DataFileIO {
     }
 
     public void writeUserDataToDatabase(UserDataList dataList) {
-        log.log(Level.INFO, "Begin writing user data to database");
         db.batchUserUpdate(dataList);
-        log.log(Level.INFO, "Finish writing user data to database");
     }
 
     public ArrayList<Quote> createQuoteListFromFile() {

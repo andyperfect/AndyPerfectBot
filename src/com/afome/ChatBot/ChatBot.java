@@ -86,7 +86,7 @@ public class ChatBot implements Runnable {
                 }
 
                 if (System.currentTimeMillis() - lastIterationTime >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
-                    startIteration();
+                    iteration();
                 }
                 Thread.sleep(100);
             }
@@ -132,11 +132,10 @@ public class ChatBot implements Runnable {
         }
     }
 
-    public void startIteration() {
+    public void iteration() {
+        //Query Twitch for users in chat and update user list accordingly
         ArrayList<String> usersInChat = TwitchUtils.getUsersInChat(config.getChannel());
-        for (String user : usersInChat) {
-            fullUserDataList.findUser(user).joined();
-        }
+        fullUserDataList.handleCurrentChatters(usersInChat);
 
         fullUserDataList.updateAllUsers();
         fileIO.writeUserDataToDatabase(fullUserDataList);
@@ -165,7 +164,7 @@ public class ChatBot implements Runnable {
         }
 
         //USER COMMANDS
-        if (message.getMessage().startsWith("!pp")) {
+        if (message.getMessage().startsWith("!hp")) {
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
                 if (userData == null) {
@@ -187,7 +186,7 @@ public class ChatBot implements Runnable {
             }
         }
 
-        if (message.getMessage().startsWith("!chat")) {
+        if (message.getMessage().startsWith("!pp")) {
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
                 if (userData == null) {
