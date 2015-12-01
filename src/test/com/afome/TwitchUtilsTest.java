@@ -13,6 +13,7 @@ public class TwitchUtilsTest {
 
     @Before
     public void before() throws Exception {
+        System.out.println("Beginning TwitchUtilsTest");
     }
 
     @After
@@ -22,9 +23,6 @@ public class TwitchUtilsTest {
     @Test
     public void testGetUsersInChat() throws Exception {
         ArrayList<String> users = TwitchUtils.getUsersInChat("andyperfect");
-        for (String user : users) {
-            System.out.println(user);
-        }
         Assert.assertTrue(users.size() > 0);
 
     }

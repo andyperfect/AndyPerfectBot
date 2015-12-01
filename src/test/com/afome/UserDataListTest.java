@@ -11,6 +11,7 @@ public class UserDataListTest {
 
     @Before
     public void before() throws Exception {
+        System.out.println("Beginning UserDataListTest");
     }
 
     @After

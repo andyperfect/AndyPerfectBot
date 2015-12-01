@@ -10,6 +10,7 @@ public class ChatBotUtilsTest {
 
     @Before
     public void before() throws Exception {
+        System.out.println("Beginning ChatBotUtilsTest");
     }
 
     @After
