@@ -74,7 +74,7 @@ public class ChatMessage {
 
     private String parseUser(String line) {
         int lastUserCharacterIndex = line.indexOf('!');
-        return line.substring(1, lastUserCharacterIndex);
+        return line.substring(1, lastUserCharacterIndex).toLowerCase();
     }
 
 

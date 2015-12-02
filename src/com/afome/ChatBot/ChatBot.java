@@ -1,6 +1,8 @@
 package com.afome.ChatBot;
 
 import com.afome.APBotMain;
+import com.afome.ChatBot.Earthbound.EBNamingOption;
+import com.afome.ChatBot.Earthbound.EBVoteHandler;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,8 +12,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 import java.util.ArrayList;
-import java.util.Random;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +30,8 @@ public class ChatBot implements Runnable {
 
     private ArrayList<ChatMessage> chatLog;
 
-    boolean running = false;
+    private boolean running = false;
+    private boolean EBVotingOpen = false;
 
     long lastIterationTime = System.currentTimeMillis();
     long startTime = System.currentTimeMillis();
@@ -57,6 +60,7 @@ public class ChatBot implements Runnable {
             joinChannel(config.getChannel());
             running = true;
 
+            log.log(Level.INFO, "Startup completed -- beginning main loop");
             // MAIN LOOP
             String line;
             while (running) {
@@ -242,16 +246,35 @@ public class ChatBot implements Runnable {
             long curTime = System.currentTimeMillis();
             sendChatMessage("The stream has been up for " + ChatBotUtils.millisToReadableFormat(curTime - startTime));
         }
+
+        if (message.getMessage().startsWith("!ebvote") && EBVotingOpen) {
+            String[] splitLine = message.getMessage().split("\\s+");
+
+            //No extra parameters, ignore
+            if (splitLine.length == 1) {
+                return;
+            }
+
+            ArrayList<String> characters = new ArrayList<String>();
+            for (int i = 1; i < splitLine.length; i++) {
+                characters.add(splitLine[i].toUpperCase());
+            }
+            EBVoteHandler.addVote(new EBNamingOption(message.getUser(), characters));
+        }
     }
 
     public void handlePrivateMessage(ChatMessage message) {
         return;
     }
 
-    public void sendChatMessage(String message) throws Exception {
+    public void sendChatMessage(String message) {
         System.out.println("LOG: Sending a chat message: " + message);
-        writer.write("PRIVMSG " + config.getChannel() + " :" + message + "\r\n");
-        writer.flush();
+        try {
+            writer.write("PRIVMSG " + config.getChannel() + " :" + message + "\r\n");
+            writer.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void replyToPing(String pingMessage) throws Exception {
@@ -290,8 +313,7 @@ public class ChatBot implements Runnable {
         if (quotes.size() == 0) {
             return null;
         } else {
-            Random rand = new Random();
-            return quotes.get(rand.nextInt(quotes.size()));
+            return quotes.get(ChatBotUtils.random.nextInt(quotes.size()));
         }
 
     }
@@ -321,4 +343,28 @@ public class ChatBot implements Runnable {
     }
 
 
+
+    public boolean isEBVotingOpen() {
+        return EBVotingOpen;
+    }
+
+    public void setEBVotingOpen(boolean EBVotingOpen) {
+        if (EBVotingOpen) {
+            EBVoteHandler.clearVotes();
+        }
+        this.EBVotingOpen = EBVotingOpen;
+    }
+
+    public EBNamingOption pickEBVotingWinner() {
+        return EBVoteHandler.pickWinningUser();
+    }
+
+    public void acceptEBVotingWinner()  {
+        EBNamingOption acceptedWinner = EBVoteHandler.getCurWinningEBNamingOption();
+        if (acceptedWinner == null) {
+            return;
+        } else {
+            sendChatMessage("Winner! " + acceptedWinner.getUser() + " with naming option: " + String.join(", ", acceptedWinner.getCharacters()));
+        }
+    }
 }

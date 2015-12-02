@@ -1,5 +1,6 @@
 package com.afome.ChatBot;
 
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ public class ChatBotUtils {
 
     public static final String URLRegex = "(https?:\\/\\/)?(www\\.)?([a-zA-Z0-9]+\\.)+([a-z]{3}|[a-z]{2})";
     public static final long TEN_MINUTES_IN_MILLIS = 600000;
+    public static Random random = new Random();
 
 
     public static String millisToReadableFormat(long millis) {

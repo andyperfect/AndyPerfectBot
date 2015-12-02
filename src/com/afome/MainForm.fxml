@@ -6,34 +6,75 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<BorderPane fx:controller="com.afome.Controller" xmlns:fx="http://javafx.com/fxml"
-        prefWidth="1024" prefHeight="768">
-    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-
-    <left>
-
-    </left>
-    <center>
-        <VBox spacing="5">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10" ></Insets>
-            </padding>
-            <TextArea fx:id="chatTextArea" prefRowCount="20" prefColumnCount="50" />
-            <TextField prefColumnCount="50"/>
-        </VBox>
 
 
-    </center>
-    <right>
-        <VBox spacing="5">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10" ></Insets>
-            </padding>
-            <Button text="Start Bot" onAction="#handleStartBotButtonAction"/>
-            <Button text="Stop Bot" onAction="#handleStopBotButtonAction"/>
-            <Label fx:id="labelBotRunning" text="Not Running" textFill="#d50b0a"/>
 
-        </VBox>
-    </right>
+<TabPane fx:controller="com.afome.Controller" xmlns:fx="http://javafx.com/fxml" prefWidth="1024" prefHeight="768">
+    <tabs>
+        <Tab fx:id="tabMain" text="Main" closable="false">
+            <BorderPane>
+                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
 
-</BorderPane>
+                <left>
+
+                </left>
+                <center>
+                    <VBox spacing="5">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10" ></Insets>
+                        </padding>
+                        <TextArea fx:id="chatTextArea" prefRowCount="20" prefColumnCount="50" />
+                        <TextField prefColumnCount="50"/>
+                    </VBox>
+
+
+                </center>
+                <right>
+                    <VBox spacing="5">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10" ></Insets>
+                        </padding>
+                        <Button text="Start Bot" onAction="#handleStartBotButtonAction"/>
+                        <Button text="Stop Bot" onAction="#handleStopBotButtonAction"/>
+                        <Label fx:id="labelBotRunning" text="Not Running" textFill="#d50b0a"/>
+                    </VBox>
+                </right>
+
+            </BorderPane>
+        </Tab>
+
+
+
+        <Tab fx:id="tabEBVoting" text="EB" closable="false">
+            <BorderPane>
+                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                <left>
+                    <VBox spacing="5">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10" ></Insets>
+                        </padding>
+                        <Button fx:id="buttonEBVoteOpen" text="Open EB Vote" onAction="#handleEBVoteOpenButton"/>
+                        <Button fx:id="buttonEBVoteClose" text="Close EB Vote" onAction="#handleEBVoteCloseButton"/>
+                        <Button fx:id="buttonEBVotePick" text="Pick Winner" onAction="#handleEBVotePickButton"/>
+                        <Button fx:id="buttonEBVoteAccept" text="Accept Winner" onAction="#handleEBVoteAcceptButton"/>
+                    </VBox>
+
+                </left>
+                <center>
+                    <VBox spacing="5">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10" ></Insets>
+                        </padding>
+                        <Label fx:id="labelCurEBVoteStatus" text="Voting is closed" textFill="#000000"/>
+                        <Label fx:id="labelCurEBWinnerUsername" text="No winners yet!" textFill="#000000"/>
+                        <Label fx:id="labelCurEBWinnerChoice" text="No option yet!" textFill="#000000"/>
+                    </VBox>
+
+                </center>
+                <right>
+
+                </right>
+            </BorderPane>
+        </Tab>
+    </tabs>
+</TabPane>

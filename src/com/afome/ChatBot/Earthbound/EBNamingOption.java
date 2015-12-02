@@ -1,4 +1,4 @@
-package com.afome.ChatBot;
+package com.afome.ChatBot.Earthbound;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,11 +71,18 @@ public class EBNamingOption {
     private String invalidReason = null;
     private boolean valid = false;
     private int movementCount = -1;
+    private String user;
 
 
-    public EBNamingOption(ArrayList<String> characters) {
+    public EBNamingOption(String user, ArrayList<String> characters) {
         this.characters = characters;
+        this.user = user;
         checkValidity();
+        if (valid) {
+            System.out.println("VALID!");
+        } else {
+            System.out.println("NOT VALID");
+        }
     }
 
     private void checkValidity() {
@@ -112,5 +119,13 @@ public class EBNamingOption {
 
     public int getMovementCount() {
         return movementCount;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public ArrayList<String> getCharacters() {
+        return characters;
     }
 }
