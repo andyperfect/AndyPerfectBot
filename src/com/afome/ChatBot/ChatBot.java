@@ -1,8 +1,6 @@
 package com.afome.ChatBot;
 
 import com.afome.APBotMain;
-import com.afome.ChatBot.Earthbound.EBNamingOption;
-import com.afome.ChatBot.Earthbound.EBVoteHandler;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -246,21 +244,6 @@ public class ChatBot implements Runnable {
             long curTime = System.currentTimeMillis();
             sendChatMessage("The stream has been up for " + ChatBotUtils.millisToReadableFormat(curTime - startTime));
         }
-
-        if (message.getMessage().startsWith("!ebvote") && EBVotingOpen) {
-            String[] splitLine = message.getMessage().split("\\s+");
-
-            //No extra parameters, ignore
-            if (splitLine.length == 1) {
-                return;
-            }
-
-            ArrayList<String> characters = new ArrayList<String>();
-            for (int i = 1; i < splitLine.length; i++) {
-                characters.add(splitLine[i].toUpperCase());
-            }
-            EBVoteHandler.addVote(new EBNamingOption(message.getUser(), characters));
-        }
     }
 
     public void handlePrivateMessage(ChatMessage message) {
@@ -342,29 +325,4 @@ public class ChatBot implements Runnable {
         return chatLog;
     }
 
-
-
-    public boolean isEBVotingOpen() {
-        return EBVotingOpen;
-    }
-
-    public void setEBVotingOpen(boolean EBVotingOpen) {
-        if (EBVotingOpen) {
-            EBVoteHandler.clearVotes();
-        }
-        this.EBVotingOpen = EBVotingOpen;
-    }
-
-    public EBNamingOption pickEBVotingWinner() {
-        return EBVoteHandler.pickWinningUser();
-    }
-
-    public void acceptEBVotingWinner()  {
-        EBNamingOption acceptedWinner = EBVoteHandler.getCurWinningEBNamingOption();
-        if (acceptedWinner == null) {
-            return;
-        } else {
-            sendChatMessage("Winner! " + acceptedWinner.getUser() + " with naming option: " + String.join(", ", acceptedWinner.getCharacters()));
-        }
-    }
 }

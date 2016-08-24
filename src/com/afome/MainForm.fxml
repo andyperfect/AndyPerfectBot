@@ -46,35 +46,6 @@
 
 
         <Tab fx:id="tabEBVoting" text="EB" closable="false">
-            <BorderPane>
-                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-                <left>
-                    <VBox spacing="5">
-                        <padding>
-                            <Insets top="10" right="10" bottom="10" left="10" ></Insets>
-                        </padding>
-                        <Button fx:id="buttonEBVoteOpen" text="Open EB Vote" onAction="#handleEBVoteOpenButton"/>
-                        <Button fx:id="buttonEBVoteClose" text="Close EB Vote" onAction="#handleEBVoteCloseButton"/>
-                        <Button fx:id="buttonEBVotePick" text="Pick Winner" onAction="#handleEBVotePickButton"/>
-                        <Button fx:id="buttonEBVoteAccept" text="Accept Winner" onAction="#handleEBVoteAcceptButton"/>
-                    </VBox>
-
-                </left>
-                <center>
-                    <VBox spacing="5">
-                        <padding>
-                            <Insets top="10" right="10" bottom="10" left="10" ></Insets>
-                        </padding>
-                        <Label fx:id="labelCurEBVoteStatus" text="Voting is closed" textFill="#000000"/>
-                        <Label fx:id="labelCurEBWinnerUsername" text="No winners yet!" textFill="#000000"/>
-                        <Label fx:id="labelCurEBWinnerChoice" text="No option yet!" textFill="#000000"/>
-                    </VBox>
-
-                </center>
-                <right>
-
-                </right>
-            </BorderPane>
         </Tab>
     </tabs>
 </TabPane>

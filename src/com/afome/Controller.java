@@ -2,7 +2,6 @@ package com.afome;
 
 import com.afome.ChatBot.ChatBot;
 import com.afome.ChatBot.ChatMessage;
-import com.afome.ChatBot.Earthbound.EBNamingOption;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -98,53 +97,5 @@ public class Controller {
             labelBotRunning.setText(botStoppedText);
             labelBotRunning.setTextFill(Paint.valueOf("#d50b0a"));
         }
-    }
-
-    @FXML protected void handleEBVoteOpenButton(ActionEvent event) {
-        if (bot == null || !bot.isRunning()) {
-            return;
-        }
-
-        if (!bot.isEBVotingOpen()) {
-            bot.setEBVotingOpen(true);
-            labelCurEBVoteStatus.setText("Voting is open");
-            labelCurEBWinnerUsername.setText("None available");
-            labelCurEBWinnerChoice.setText("None Available");
-        }
-    }
-
-    @FXML protected void handleEBVoteCloseButton(ActionEvent event) {
-        if (bot == null || !bot.isRunning()) {
-            return;
-        }
-
-        if (bot.isEBVotingOpen()) {
-            bot.setEBVotingOpen(false);
-            labelCurEBVoteStatus.setText("Voting is closed");
-        }
-    }
-
-    @FXML protected void handleEBVotePickButton(ActionEvent event) {
-        if (bot == null || !bot.isRunning()) {
-            return;
-        }
-
-        EBNamingOption curWinningOption = bot.pickEBVotingWinner();
-        if (curWinningOption == null) {
-            labelCurEBWinnerUsername.setText("None available");
-            labelCurEBWinnerChoice.setText("None Available");
-        } else {
-            labelCurEBWinnerUsername.setText(curWinningOption.getUser());
-            labelCurEBWinnerChoice.setText(String.join(", ", curWinningOption.getCharacters()));
-        }
-
-    }
-
-    @FXML protected void handleEBVoteAcceptButton(ActionEvent event) {
-        if (bot == null || !bot.isRunning()) {
-            return;
-        }
-
-        bot.acceptEBVotingWinner();
     }
 }
