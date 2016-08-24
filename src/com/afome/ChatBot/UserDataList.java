@@ -48,11 +48,11 @@ public class UserDataList extends ArrayList<UserData> {
         for (UserData user : this) {
             boolean found = false;
             for (String chatter : users) {
-                if (!found) {
                     if (user.getUser().equalsIgnoreCase(chatter)) {
                         user.joined();
+                        found = true;
+                        break;
                     }
-                }
             }
             if (!found) {
                 user.parted();
