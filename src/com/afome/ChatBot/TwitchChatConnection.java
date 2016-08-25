@@ -256,6 +256,33 @@ public class TwitchChatConnection {
             long curTime = System.currentTimeMillis();
             sendChatMessage("The stream has been up for " + ChatBotUtils.millisToReadableFormat(curTime - initialConnectionTime));
         }
+
+        if (message.getMessage().equals("!roulette")) {
+            // Gets a random number from 1 - 128
+            int rolledValue = ChatBotUtils.random.nextInt(128) + 1;
+            String responseMessage = message.getUser() + " rolled a " + String.valueOf(rolledValue) + ". ";
+            if (rolledValue == 128) {
+                sendChatMessage("/timeout " + message.getUser() + " 120");
+                responseMessage += "A Gutsy Bat. A bomb drop. A timeout. RIP";
+            } else if (rolledValue > 120) {
+                responseMessage += "Mighty close. You're safe for now";
+            } else if (rolledValue > 100) {
+                responseMessage += "A high roll, but you're safe.";
+            } else if (rolledValue > 80) {
+                responseMessage += "On the high side, but you're safe.";
+            } else if (rolledValue > 60) {
+                responseMessage += "You are very average.";
+            } else if (rolledValue > 40) {
+                responseMessage += "Below average. That's ok in this case";
+            } else if (rolledValue > 20) {
+                responseMessage += "Impressively low. Nowhere near that bomb drop";
+            } else if (rolledValue > 2) {
+                responseMessage += "You'd be close if the numbers wrapped. But they don't. So you're not close";
+            } else {
+                responseMessage += "You literally could not have been further from the 1/128 roll. Congratulations.";
+            }
+            sendChatMessage(responseMessage);
+        }
     }
 
     public void banUser(String user, String reason) throws Exception {
