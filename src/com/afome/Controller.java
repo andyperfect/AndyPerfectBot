@@ -45,7 +45,7 @@ public class Controller {
         chatUpdater = new Timeline(new KeyFrame(Duration.millis(500.0), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                ArrayList<ChatMessage> chatLog = bot.getChatLog();
+                ArrayList<ChatMessage> chatLog = bot.getChatConnection().getChatLog();
 
                 //We have new chat messages
                 if (lastChatMessageIndex + 1 < chatLog.size()) {
