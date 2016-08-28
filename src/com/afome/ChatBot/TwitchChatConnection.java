@@ -177,8 +177,13 @@ public class TwitchChatConnection {
             banUser(message, "First chat message contained a link. Assumed bot");
         }
 
+        if (!userData.canUseBotCommand(config.getTimeBetweenUserCommands())) {
+            return;
+        }
+
         //USER COMMANDS
         if (message.getMessage().startsWith("!hp")) {
+            userData.handleBotCommand(config.getTimeBetweenUserCommands());
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
                 if (userData == null) {
@@ -201,6 +206,7 @@ public class TwitchChatConnection {
         }
 
         if (message.getMessage().startsWith("!pp")) {
+            userData.handleBotCommand(config.getTimeBetweenUserCommands());
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
                 if (userData == null) {
@@ -224,6 +230,7 @@ public class TwitchChatConnection {
 
         //Only users with that have been in chat for the configured time are allowed to use this option (And mods)
         if (message.getMessage().startsWith("!quote") && (userData.getNumMillis() > config.getTimeNeededToQuote() || userData.getUserType() == UserType.MODERATOR)) {
+            userData.handleBotCommand(config.getTimeBetweenUserCommands());
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
                 Quote quote = getRandomQuote();
@@ -253,17 +260,24 @@ public class TwitchChatConnection {
         }
 
         if (message.getMessage().equals("!uptime")) {
+            userData.handleBotCommand(config.getTimeBetweenUserCommands());
             long curTime = System.currentTimeMillis();
             sendChatMessage("The stream has been up for " + ChatBotUtils.millisToReadableFormat(curTime - initialConnectionTime));
         }
 
         if (message.getMessage().equals("!roulette")) {
+            userData.handleBotCommand(config.getTimeBetweenUserCommands());
             // Gets a random number from 1 - 128
             int rolledValue = ChatBotUtils.random.nextInt(128) + 1;
             String responseMessage = message.getUser() + " rolled a " + String.valueOf(rolledValue) + ". ";
             if (rolledValue == 128) {
-                sendChatMessage("/timeout " + message.getUser() + " 120");
+
                 responseMessage += "A Gutsy Bat. A bomb drop. A timeout. RIP";
+                if (userData.getUserType().equals(UserType.MODERATOR)) {
+                    responseMessage += " ... @AndyPerfect, Timeout this guy. This mod's gotta go and I can't do it.";
+                } else if (userData.getUserType().equals(UserType.USER)) {
+                    sendChatMessage("/timeout " + message.getUser() + " 120");
+                }
             } else if (rolledValue > 120) {
                 responseMessage += "Mighty close. You're safe for now";
             } else if (rolledValue > 100) {
@@ -271,7 +285,7 @@ public class TwitchChatConnection {
             } else if (rolledValue > 80) {
                 responseMessage += "On the high side, but you're safe.";
             } else if (rolledValue > 60) {
-                responseMessage += "You are very average.";
+                responseMessage += "You really are quite average.";
             } else if (rolledValue > 40) {
                 responseMessage += "Below average. That's ok in this case";
             } else if (rolledValue > 20) {

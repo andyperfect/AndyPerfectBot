@@ -7,6 +7,7 @@ public class UserData implements Comparable<UserData> {
     private int chatCount = 0;
     private long joinTimeMillis = -1;
     private long lastCheckTimeMillis = -1;
+    private long lastBotCommandMillis = -1;
 
 
     public UserData(String user, long numMillis) {
@@ -31,6 +32,20 @@ public class UserData implements Comparable<UserData> {
     public void parted() {
         updateTime();
         resetTimes();
+    }
+
+    public boolean canUseBotCommand(long timeBetweenCommands) {
+        if (lastBotCommandMillis == -1 || System.currentTimeMillis() - lastBotCommandMillis >= timeBetweenCommands) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void handleBotCommand(long timeBetweenCommands) {
+        if (lastBotCommandMillis == -1 || System.currentTimeMillis() - lastBotCommandMillis >= timeBetweenCommands) {
+            lastBotCommandMillis = System.currentTimeMillis();
+        }
     }
 
     public void handleChatMessage() {

@@ -12,6 +12,7 @@
     ]
   },
   "time_needed_to_quote":86400000,
+  "time_between_user_commands": 30000,
   "botbanenabled":1
 
 }

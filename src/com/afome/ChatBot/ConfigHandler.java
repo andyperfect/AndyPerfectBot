@@ -20,6 +20,7 @@ public class ConfigHandler {
     private boolean botBanEnabled = true;
     private int port = -1;
     private long timeNeededToQuote = -1;
+    private long timeBetweenUserCommands = -1;
 
     public ConfigHandler() throws IOException {
         String configContent = new String(Files.readAllBytes(Paths.get("data" + File.separator + "config.json")));
@@ -31,6 +32,7 @@ public class ConfigHandler {
         channel = jsonConfigObject.getString("channel");
         port = jsonConfigObject.getInt("port");
         timeNeededToQuote = jsonConfigObject.getLong("time_needed_to_quote");
+        timeBetweenUserCommands = jsonConfigObject.getLong("time_between_user_commands");
         botBanEnabled = jsonConfigObject.getInt("botbanenabled") == 1 ? true : false;
 
         JSONObject users = jsonConfigObject.getJSONObject("users");
@@ -76,6 +78,10 @@ public class ConfigHandler {
 
     public long getTimeNeededToQuote() {
         return timeNeededToQuote;
+    }
+
+    public long getTimeBetweenUserCommands() {
+        return timeBetweenUserCommands;
     }
 
     public boolean isBotBanEnabled() {
