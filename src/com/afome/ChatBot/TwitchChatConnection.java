@@ -290,7 +290,7 @@ public class TwitchChatConnection {
                 responseMessage += "Below average. That's ok in this case";
             } else if (rolledValue > 20) {
                 responseMessage += "Impressively low. Nowhere near that bomb drop";
-            } else if (rolledValue > 2) {
+            } else if (rolledValue >= 2) {
                 responseMessage += "You'd be close if the numbers wrapped. But they don't. So you're not close";
             } else {
                 responseMessage += "You literally could not have been further from the 1/128 roll. Congratulations.";
