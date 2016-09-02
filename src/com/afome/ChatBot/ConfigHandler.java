@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ConfigHandler {
+    private static ConfigHandler instance = null;
+
     private String serverName = "";
     private String nick = "";
     private String password = "";
@@ -22,7 +24,14 @@ public class ConfigHandler {
     private long timeNeededToQuote = -1;
     private long timeBetweenUserCommands = -1;
 
-    public ConfigHandler() throws IOException {
+    public static ConfigHandler getInstance() throws IOException {
+        if (instance == null) {
+            instance = new ConfigHandler();
+        }
+        return instance;
+    }
+
+    private ConfigHandler() throws IOException {
         String configContent = new String(Files.readAllBytes(Paths.get("data" + File.separator + "config.json")));
         JSONObject jsonConfigObject = new JSONObject(configContent);
 
@@ -43,9 +52,6 @@ public class ConfigHandler {
         for (int i = 0; i < modJsonList.length(); i++) {
             mods.add(modJsonList.getString(i));
         }
-
-
-
     }
 
     public String getServerName() {

@@ -27,7 +27,7 @@ public class TwitchChatConnection {
 
     public TwitchChatConnection(String channel) throws Exception {
         this.channel = channel;
-        config = new ConfigHandler();
+        config = ConfigHandler.getInstance();
 
         Socket socket = new Socket(config.getServerName(), config.getPort());
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
