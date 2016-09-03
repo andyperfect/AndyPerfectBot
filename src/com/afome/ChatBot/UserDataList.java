@@ -5,6 +5,8 @@ import java.util.Collections;
 
 public class UserDataList extends ArrayList<UserData> {
 
+    private String channel;
+
     public UserData findUser(String username) {
         for (UserData userData : this) {
             if (userData.getUser().equals(username)) {
@@ -58,5 +60,12 @@ public class UserDataList extends ArrayList<UserData> {
                 user.parted();
             }
         }
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 }

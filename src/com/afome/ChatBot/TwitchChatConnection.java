@@ -1,6 +1,7 @@
 package com.afome.ChatBot;
 
 import com.afome.APBotMain;
+import com.afome.ChatBot.ChatBotUtils;
 
 import java.io.*;
 import java.net.Socket;
@@ -34,7 +35,7 @@ public class TwitchChatConnection {
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         fileIO = new DataFileIO();
-        fullUserDataList = fileIO.createUserDataFromDatabase();
+        fullUserDataList = fileIO.createUserDataFromDatabase(ChatBotUtils.stripHashtagFromChannel(channel));
         fullUserDataList.assignModerators(config.getMods());
 
         quotes = fileIO.createQuoteListFromFile();

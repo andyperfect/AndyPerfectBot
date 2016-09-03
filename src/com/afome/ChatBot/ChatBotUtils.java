@@ -68,4 +68,8 @@ public class ChatBotUtils {
         Matcher m = pattern.matcher(input);
         return m.find();
     }
+
+    public static String stripHashtagFromChannel(String channel) {
+        return channel.replace("#", "");
+    }
 }

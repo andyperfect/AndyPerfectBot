@@ -18,15 +18,20 @@ public class DBConnection {
         }
     }
 
-    public UserDataList getAllUserInfo() {
+    public UserDataList getAllUserInfo(String channel) {
         UserDataList returnList = new UserDataList();
+        returnList.setChannel(channel);
         try {
             if (conn != null) {
                 Statement statement = conn.createStatement();
                 statement.setQueryTimeout(10);
                 String queryString = String.format(
-                        "SELECT u.username, u.timeconnected, u.chatcount " +
-                        "FROM user as u");
+                        "SELECT u.username, u.channel_id, u.timeconnected, u.chatcount " +
+                                "FROM user u " +
+                                "INNER JOIN channel c " +
+                                "ON u.channel_id = c.id " +
+                                "WHERE c.name = '%s';",
+                        channel);
                 ResultSet rs = statement.executeQuery(queryString);
                 while (rs.next()) {
                     returnList.add(new UserData(rs.getString("username"), rs.getLong("timeconnected"), rs.getInt("chatcount" )));
@@ -62,7 +67,7 @@ public class DBConnection {
         }
     }
 
-    public void updateUserData(String username, long timeConnected, int chatCount) {
+    public void updateUserData(String username, long timeConnected, int chatCount, String channel) {
         try {
             if (conn != null) {
                 Statement statement = conn.createStatement();
@@ -85,14 +90,16 @@ public class DBConnection {
             if (conn != null) {
                 conn.setAutoCommit(false);
                 String queryString =
-                        "INSERT OR REPLACE INTO user (id, username, timeconnected, chatcount) " +
-                        "VALUES ((SELECT id FROM user WHERE username=?), ?, ?, ?);";
+                        "INSERT OR REPLACE INTO user (id, channel_id, username, timeconnected, chatcount) " +
+                        "VALUES " +
+                        "((SELECT id FROM user WHERE username=?), (SELECT id FROM channel WHERE name=?), ?, ?, ?);";
                 PreparedStatement pStatement = conn.prepareStatement(queryString);
                 for (UserData userData : dataList) {
                     pStatement.setString(1, userData.getUser());
-                    pStatement.setString(2, userData.getUser());
-                    pStatement.setLong(3, userData.getNumMillis());
-                    pStatement.setInt(4, userData.getChatCount());
+                    pStatement.setString(2, dataList.getChannel());
+                    pStatement.setString(3, userData.getUser());
+                    pStatement.setLong(4, userData.getNumMillis());
+                    pStatement.setInt(5, userData.getChatCount());
                     pStatement.addBatch();
                 }
                 pStatement.executeBatch();

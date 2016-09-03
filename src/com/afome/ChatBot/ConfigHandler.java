@@ -16,6 +16,7 @@ public class ConfigHandler {
     private String serverName = "";
     private String nick = "";
     private String password = "";
+
     private String channel = "";
     private String op = "";
     private ArrayList<String> mods;
@@ -42,7 +43,7 @@ public class ConfigHandler {
         port = jsonConfigObject.getInt("port");
         timeNeededToQuote = jsonConfigObject.getLong("time_needed_to_quote");
         timeBetweenUserCommands = jsonConfigObject.getLong("time_between_user_commands");
-        botBanEnabled = jsonConfigObject.getInt("botbanenabled") == 1 ? true : false;
+        botBanEnabled = jsonConfigObject.getInt("botbanenabled") == 1;
 
         JSONObject users = jsonConfigObject.getJSONObject("users");
         op = users.getString("op");

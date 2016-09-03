@@ -25,8 +25,8 @@ public class DataFileIO {
         quoteDateFormatter = DateTimeFormatter.ofPattern(dateTimeFormatString);
     }
 
-    public UserDataList createUserDataFromDatabase() {
-        return db.getAllUserInfo();
+    public UserDataList createUserDataFromDatabase(String channel) {
+        return db.getAllUserInfo(channel);
     }
 
     public void writeUserDataToDatabase(UserDataList dataList) {
