@@ -33,6 +33,10 @@ public class DataFileIO {
         db.batchUserUpdate(dataList);
     }
 
+    public void writeChannelToDatabase(String channel) {
+        db.createChannel(channel);
+    }
+
     public ArrayList<Quote> createQuoteListFromFile() {
         ArrayList<Quote> quotes = new ArrayList<Quote>();
         Scanner fileScanner = null;

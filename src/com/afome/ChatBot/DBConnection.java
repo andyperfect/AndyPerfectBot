@@ -18,6 +18,27 @@ public class DBConnection {
         }
     }
 
+    public boolean createChannel(String channel) {
+        try {
+            if (conn != null) {
+                Statement statement = conn.createStatement();
+                statement.setQueryTimeout(10);
+                String queryString = String.format(
+                        "INSERT INTO channel(name) " +
+                        "SELECT '%s' " +
+                        "WHERE NOT EXISTS " +
+                        "(SELECT 1 FROM channel WHERE name = '%s');",
+                        channel, channel);
+                statement.executeUpdate(queryString);
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
+    }
+
     public UserDataList getAllUserInfo(String channel) {
         UserDataList returnList = new UserDataList();
         returnList.setChannel(channel);

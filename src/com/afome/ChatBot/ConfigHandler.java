@@ -21,6 +21,7 @@ public class ConfigHandler {
     private String op = "";
     private ArrayList<String> mods;
     private boolean botBanEnabled = true;
+    private boolean botCommandsEnabled = true;
     private int port = -1;
     private long timeNeededToQuote = -1;
     private long timeBetweenUserCommands = -1;
@@ -44,6 +45,7 @@ public class ConfigHandler {
         timeNeededToQuote = jsonConfigObject.getLong("time_needed_to_quote");
         timeBetweenUserCommands = jsonConfigObject.getLong("time_between_user_commands");
         botBanEnabled = jsonConfigObject.getInt("botbanenabled") == 1;
+        botCommandsEnabled = jsonConfigObject.getInt("enable_bot_commands") == 1;
 
         JSONObject users = jsonConfigObject.getJSONObject("users");
         op = users.getString("op");
@@ -93,5 +95,9 @@ public class ConfigHandler {
 
     public boolean isBotBanEnabled() {
         return botBanEnabled;
+    }
+
+    public boolean isBotCommandsEnabled() {
+        return botCommandsEnabled;
     }
 }

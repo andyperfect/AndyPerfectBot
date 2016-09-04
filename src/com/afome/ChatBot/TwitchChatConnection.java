@@ -35,6 +35,7 @@ public class TwitchChatConnection {
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         fileIO = new DataFileIO();
+        fileIO.writeChannelToDatabase(ChatBotUtils.stripHashtagFromChannel(channel));
         fullUserDataList = fileIO.createUserDataFromDatabase(ChatBotUtils.stripHashtagFromChannel(channel));
         fullUserDataList.assignModerators(config.getMods());
 
@@ -179,6 +180,10 @@ public class TwitchChatConnection {
         }
 
         if (!userData.canUseBotCommand(config.getTimeBetweenUserCommands())) {
+            return;
+        }
+
+        if (!config.isBotCommandsEnabled()) {
             return;
         }
 
