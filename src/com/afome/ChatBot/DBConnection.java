@@ -113,14 +113,19 @@ public class DBConnection {
                 String queryString =
                         "INSERT OR REPLACE INTO user (id, channel_id, username, timeconnected, chatcount) " +
                         "VALUES " +
-                        "((SELECT id FROM user WHERE username=?), (SELECT id FROM channel WHERE name=?), ?, ?, ?);";
+                        "( " +
+                        "(SELECT u.id FROM user u " +
+                        "INNER JOIN channel c ON u.channel_id = c.id " +
+                        "WHERE u.username = ? AND c.name = ?), " +
+                        "(SELECT id FROM channel WHERE name=?), ?, ?, ?);";
                 PreparedStatement pStatement = conn.prepareStatement(queryString);
                 for (UserData userData : dataList) {
                     pStatement.setString(1, userData.getUser());
                     pStatement.setString(2, dataList.getChannel());
-                    pStatement.setString(3, userData.getUser());
-                    pStatement.setLong(4, userData.getNumMillis());
-                    pStatement.setInt(5, userData.getChatCount());
+                    pStatement.setString(3, dataList.getChannel());
+                    pStatement.setString(4, userData.getUser());
+                    pStatement.setLong(5, userData.getNumMillis());
+                    pStatement.setInt(6,  userData.getChatCount());
                     pStatement.addBatch();
                 }
                 pStatement.executeBatch();

@@ -332,7 +332,8 @@ public class TwitchChatConnection {
     public void iteration() {
         if (System.currentTimeMillis() - lastIterationTime >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
             //Query Twitch for users in chat and update user list accordingly
-            ArrayList<String> usersInChat = TwitchUtils.getUsersInChat(config.getChannel());
+            ArrayList<String> usersInChat = TwitchUtils.getUsersInChat(
+                    ChatBotUtils.stripHashtagFromChannel(config.getChannel()));
             fullUserDataList.handleCurrentChatters(usersInChat);
 
             fullUserDataList.updateAllUsers();

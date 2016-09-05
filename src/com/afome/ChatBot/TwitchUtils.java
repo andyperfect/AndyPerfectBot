@@ -34,7 +34,7 @@ public class TwitchUtils {
                 for (String key : chattersJson.keySet()) {
                     JSONArray userList = chattersJson.getJSONArray(key);
                     for (int i = 0; i < userList.length(); i++) {
-                        users.add(userList.getString(i));
+                        users.add(userList.getString(i).toLowerCase());
                     }
                 }
             }
