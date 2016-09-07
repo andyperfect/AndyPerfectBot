@@ -41,6 +41,11 @@ public class Controller {
         Thread chatBotThread = new Thread(bot);
         chatBotThread.start();
 
+        try {
+            Thread.sleep(1000);
+        } catch(InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
 
         chatUpdater = new Timeline(new KeyFrame(Duration.millis(500.0), new EventHandler<ActionEvent>() {
             @Override
@@ -51,7 +56,6 @@ public class Controller {
                 if (lastChatMessageIndex + 1 < chatLog.size()) {
                     int i;
                     for (i = chatLog.size() - 1; i > lastChatMessageIndex; i--) {
-                        System.out.println("Appending line");
                         chatTextArea.appendText(chatLog.get(i).toString() + "\n");
                     }
                     lastChatMessageIndex = i + 1;

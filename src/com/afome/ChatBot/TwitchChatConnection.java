@@ -24,7 +24,8 @@ public class TwitchChatConnection {
     private ArrayList<ChatMessage> chatLog;
 
     private long initialConnectionTime = -1;
-    private long lastIterationTime = -1;
+    private long lastTwitchUserQueryTime = -1;
+    private long lastDbWriteTime = -1;
 
     public TwitchChatConnection(String channel) throws Exception {
         this.channel = channel;
@@ -53,7 +54,8 @@ public class TwitchChatConnection {
             System.out.println("LOG: JOINED CHANNEL " + channel);
 
             initialConnectionTime = System.currentTimeMillis();
-            lastIterationTime = initialConnectionTime;
+            lastTwitchUserQueryTime = System.currentTimeMillis() - ChatBotUtils.ONE_MINUTE_IN_MILLIS;
+            lastDbWriteTime = initialConnectionTime;
 
             return true;
         }
@@ -331,16 +333,18 @@ public class TwitchChatConnection {
     }
 
     public void iteration() {
-        if (System.currentTimeMillis() - lastIterationTime >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
+        if (System.currentTimeMillis() - lastTwitchUserQueryTime >= ChatBotUtils.ONE_MINUTE_IN_MILLIS) {
             //Query Twitch for users in chat and update user list accordingly
             ArrayList<String> usersInChat = TwitchUtils.getUsersInChat(
                     ChatBotUtils.stripHashtagFromChannel(this.channel));
             fullUserDataList.handleCurrentChatters(usersInChat);
-
+            lastTwitchUserQueryTime = System.currentTimeMillis();
+        }
+        if (System.currentTimeMillis() - lastDbWriteTime >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
             fullUserDataList.updateAllUsers();
             fileIO.writeUserDataToDatabase(fullUserDataList);
             fileIO.writeQuoteListToFile(quotes);
-            lastIterationTime = System.currentTimeMillis();
+            lastDbWriteTime = System.currentTimeMillis();
         }
     }
 }
