@@ -23,7 +23,7 @@ public class ChatBot implements Runnable {
             log.log(Level.INFO, "Starting bot");
             config = ConfigHandler.getInstance();
 
-            chatConnection = new TwitchChatConnection(config.getChannel());
+            chatConnection = new TwitchChatConnection(config.getChannels().get(0));
             chatConnection.connect();
 
             running = true;

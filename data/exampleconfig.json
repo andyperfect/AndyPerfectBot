@@ -1,18 +1,23 @@
 {
   "servername":"irc.twitch.tv",
-  "nick":"mybotname",
+  "nick":"mybotusername",
   "password":"oauth:whatevermyoauthkeyhappenstobe",
-  "channel":"#mychannel",
-  "port":80,
-  "users": {
-    "op":"the_special_user_that_has_access_to_run_special_commands",
-    "moderators": [
-      "user1",
-      "user2"
-    ]
-  },
-  "time_needed_to_quote":86400000,
-  "time_between_user_commands": 30000,
-  "botbanenabled":1
-
+  "channels": [
+    {
+      "channel": "#destinationchannel",
+      "port": 6667,
+      "users": {
+        "op": "destinationchannel",
+        "moderators": [
+          "user1",
+          "user2",
+          "user3"
+        ]
+      },
+      "time_needed_to_quote":86400000,
+      "time_between_user_commands": 30000,
+      "enable_bot_ban":1,
+      "enable_bot_commands":1
+    }
+  ]
 }

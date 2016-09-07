@@ -30,14 +30,14 @@ public class TwitchChatConnection {
         this.channel = channel;
         config = ConfigHandler.getInstance();
 
-        Socket socket = new Socket(config.getServerName(), config.getPort());
+        Socket socket = new Socket(config.getServerName(), config.getPort(this.channel));
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         fileIO = new DataFileIO();
         fileIO.writeChannelToDatabase(ChatBotUtils.stripHashtagFromChannel(channel));
         fullUserDataList = fileIO.createUserDataFromDatabase(ChatBotUtils.stripHashtagFromChannel(channel));
-        fullUserDataList.assignModerators(config.getMods());
+        fullUserDataList.assignModerators(config.getMods(this.channel));
 
         quotes = fileIO.createQuoteListFromFile();
 
@@ -123,7 +123,7 @@ public class TwitchChatConnection {
     public void sendChatMessage(String message) {
         System.out.println("LOG: Sending a chat message: " + message);
         try {
-            writer.write("PRIVMSG " + config.getChannel() + " :" + message + "\r\n");
+            writer.write("PRIVMSG " + this.channel + " :" + message + "\r\n");
             writer.flush();
         } catch (Exception e) {
             e.printStackTrace();
@@ -175,21 +175,21 @@ public class TwitchChatConnection {
         userData.handleChatMessage();
 
         //If bot ban is enabled, the user has sent only 1 message and it's a link, insta-ban
-        if (config.isBotBanEnabled() && userData.getChatCount() <= 1 && ChatBotUtils.containsLink(message.getMessage())) {
+        if (config.isBotBanEnabled(this.channel) && userData.getChatCount() <= 1 && ChatBotUtils.containsLink(message.getMessage())) {
             banUser(message, "First chat message contained a link. Assumed bot");
         }
 
-        if (!userData.canUseBotCommand(config.getTimeBetweenUserCommands())) {
+        if (!userData.canUseBotCommand(config.getTimeBetweenUserCommands(this.channel))) {
             return;
         }
 
-        if (!config.isBotCommandsEnabled()) {
+        if (!config.isBotCommandsEnabled(this.channel)) {
             return;
         }
 
         //USER COMMANDS
         if (message.getMessage().startsWith("!hp")) {
-            userData.handleBotCommand(config.getTimeBetweenUserCommands());
+            userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
                 if (userData == null) {
@@ -212,7 +212,7 @@ public class TwitchChatConnection {
         }
 
         if (message.getMessage().startsWith("!pp")) {
-            userData.handleBotCommand(config.getTimeBetweenUserCommands());
+            userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
                 if (userData == null) {
@@ -235,8 +235,9 @@ public class TwitchChatConnection {
         }
 
         //Only users with that have been in chat for the configured time are allowed to use this option (And mods)
-        if (message.getMessage().startsWith("!quote") && (userData.getNumMillis() > config.getTimeNeededToQuote() || userData.getUserType() == UserType.MODERATOR)) {
-            userData.handleBotCommand(config.getTimeBetweenUserCommands());
+        if (message.getMessage().startsWith("!quote") && (userData.getNumMillis() >
+                config.getTimeNeededToQuote(this.channel) || userData.getUserType() == UserType.MODERATOR)) {
+            userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
                 Quote quote = getRandomQuote();
@@ -266,13 +267,13 @@ public class TwitchChatConnection {
         }
 
         if (message.getMessage().equals("!uptime")) {
-            userData.handleBotCommand(config.getTimeBetweenUserCommands());
+            userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
             long curTime = System.currentTimeMillis();
             sendChatMessage("The stream has been up for " + ChatBotUtils.millisToReadableFormat(curTime - initialConnectionTime));
         }
 
         if (message.getMessage().equals("!roulette")) {
-            userData.handleBotCommand(config.getTimeBetweenUserCommands());
+            userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
             // Gets a random number from 1 - 128
             int rolledValue = ChatBotUtils.random.nextInt(128) + 1;
             String responseMessage = message.getUser() + " rolled a " + String.valueOf(rolledValue) + ". ";
@@ -333,7 +334,7 @@ public class TwitchChatConnection {
         if (System.currentTimeMillis() - lastIterationTime >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
             //Query Twitch for users in chat and update user list accordingly
             ArrayList<String> usersInChat = TwitchUtils.getUsersInChat(
-                    ChatBotUtils.stripHashtagFromChannel(config.getChannel()));
+                    ChatBotUtils.stripHashtagFromChannel(this.channel));
             fullUserDataList.handleCurrentChatters(usersInChat);
 
             fullUserDataList.updateAllUsers();

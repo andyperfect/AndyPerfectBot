@@ -8,23 +8,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Arrays;
 
+@SuppressWarnings("unchecked")
 public class ConfigHandler {
     private static ConfigHandler instance = null;
+    private HashMap<String, HashMap<String, Object>> channelConfigs;
 
     private String serverName = "";
     private String nick = "";
     private String password = "";
-
-    private String channel = "";
-    private String op = "";
-    private ArrayList<String> mods;
-    private boolean botBanEnabled = true;
-    private boolean botCommandsEnabled = true;
-    private int port = -1;
-    private long timeNeededToQuote = -1;
-    private long timeBetweenUserCommands = -1;
 
     public static ConfigHandler getInstance() throws IOException {
         if (instance == null) {
@@ -34,26 +28,35 @@ public class ConfigHandler {
     }
 
     private ConfigHandler() throws IOException {
+        channelConfigs = new HashMap<String, HashMap<String, Object>>();
+
         String configContent = new String(Files.readAllBytes(Paths.get("data" + File.separator + "config.json")));
         JSONObject jsonConfigObject = new JSONObject(configContent);
 
         serverName = jsonConfigObject.getString("servername");
         nick = jsonConfigObject.getString("nick");
         password = jsonConfigObject.getString("password");
-        channel = jsonConfigObject.getString("channel");
-        port = jsonConfigObject.getInt("port");
-        timeNeededToQuote = jsonConfigObject.getLong("time_needed_to_quote");
-        timeBetweenUserCommands = jsonConfigObject.getLong("time_between_user_commands");
-        botBanEnabled = jsonConfigObject.getInt("botbanenabled") == 1;
-        botCommandsEnabled = jsonConfigObject.getInt("enable_bot_commands") == 1;
 
-        JSONObject users = jsonConfigObject.getJSONObject("users");
-        op = users.getString("op");
+        JSONArray channels = jsonConfigObject.getJSONArray("channels");
+        for (int i = 0; i < channels.length(); i++) {
+            JSONObject curChannelJson = channels.getJSONObject(i);
+            HashMap<String, Object> channelConfig = new HashMap<String, Object>();
+            channelConfig.put("port", curChannelJson.getInt("port"));
+            channelConfig.put("time_needed_to_quote", curChannelJson.getLong("time_needed_to_quote"));
+            channelConfig.put("time_between_user_commands", curChannelJson.getLong("time_between_user_commands"));
+            channelConfig.put("enable_bot_ban", curChannelJson.getInt("enable_bot_ban") == 1);
+            channelConfig.put("enable_bot_commands", curChannelJson.getInt("enable_bot_commands") == 1);
 
-        mods = new ArrayList<String>();
-        JSONArray modJsonList = users.getJSONArray("moderators");
-        for (int i = 0; i < modJsonList.length(); i++) {
-            mods.add(modJsonList.getString(i));
+            JSONObject users = curChannelJson.getJSONObject("users");
+            channelConfig.put("op", users.getString("op"));
+
+            ArrayList<String> channelMods = new ArrayList<String>();
+            JSONArray modJsonList = users.getJSONArray("moderators");
+            for (int j = 0; j < modJsonList.length(); j++) {
+                channelMods.add(modJsonList.getString(j));
+            }
+            channelConfig.put("mods", channelMods);
+            channelConfigs.put(curChannelJson.getString("channel"), channelConfig);
         }
     }
 
@@ -69,35 +72,35 @@ public class ConfigHandler {
         return password;
     }
 
-    public String getChannel() {
-        return channel;
+    public ArrayList<String> getChannels() {
+        return new ArrayList<String>(channelConfigs.keySet());
     }
 
-    public String getOp() {
-        return op;
+    public String getOp(String channel) {
+        return (String) channelConfigs.get(channel).get("op");
     }
 
-    public ArrayList<String> getMods() {
-        return mods;
+    public ArrayList<String> getMods(String channel) {
+        return (ArrayList<String>) channelConfigs.get(channel).get("mods");
     }
 
-    public int getPort() {
-        return port;
+    public int getPort(String channel) {
+        return (Integer) channelConfigs.get(channel).get("port");
     }
 
-    public long getTimeNeededToQuote() {
-        return timeNeededToQuote;
+    public long getTimeNeededToQuote(String channel) {
+        return (Long) channelConfigs.get(channel).get("time_needed_to_quote");
     }
 
-    public long getTimeBetweenUserCommands() {
-        return timeBetweenUserCommands;
+    public long getTimeBetweenUserCommands(String channel) {
+        return (Long) channelConfigs.get(channel).get("time_between_user_commands");
     }
 
-    public boolean isBotBanEnabled() {
-        return botBanEnabled;
+    public boolean isBotBanEnabled(String channel) {
+        return (Boolean) channelConfigs.get(channel).get("enable_bot_ban");
     }
 
-    public boolean isBotCommandsEnabled() {
-        return botCommandsEnabled;
+    public boolean isBotCommandsEnabled(String channel) {
+        return (Boolean) channelConfigs.get(channel).get("enable_bot_commands");
     }
 }
