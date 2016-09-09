@@ -42,6 +42,7 @@ public class ConfigHandler {
             JSONObject curChannelJson = channels.getJSONObject(i);
             HashMap<String, Object> channelConfig = new HashMap<String, Object>();
             channelConfig.put("port", curChannelJson.getInt("port"));
+            channelConfig.put("enabled", curChannelJson.getInt("enabled") == 1);
             channelConfig.put("time_needed_to_quote", curChannelJson.getLong("time_needed_to_quote"));
             channelConfig.put("time_between_user_commands", curChannelJson.getLong("time_between_user_commands"));
             channelConfig.put("enable_bot_ban", curChannelJson.getInt("enable_bot_ban") == 1);
@@ -102,5 +103,9 @@ public class ConfigHandler {
 
     public boolean isBotCommandsEnabled(String channel) {
         return (Boolean) channelConfigs.get(channel).get("enable_bot_commands");
+    }
+
+    public boolean isChannelEnabled(String channel) {
+        return (Boolean) channelConfigs.get(channel).get("enabled");
     }
 }

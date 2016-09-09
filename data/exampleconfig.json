@@ -6,6 +6,7 @@
     {
       "channel": "#destinationchannel",
       "port": 6667,
+      "enabled": 1,
       "users": {
         "op": "destinationchannel",
         "moderators": [
