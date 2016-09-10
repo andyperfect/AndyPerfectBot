@@ -25,9 +25,6 @@ public class Controller {
 
     @FXML private TextArea chatTextArea;
     @FXML private Label labelBotRunning;
-    @FXML private Label labelCurEBWinnerUsername;
-    @FXML private Label labelCurEBWinnerChoice;
-    @FXML private Label labelCurEBVoteStatus;
 
     private final String botRunningText = "Bot Running";
     private final String botStoppedText = "Bot Stopped";
@@ -47,7 +44,7 @@ public class Controller {
             Thread.currentThread().interrupt();
         }
 
-        chatUpdater = new Timeline(new KeyFrame(Duration.millis(500.0), new EventHandler<ActionEvent>() {
+        /* chatUpdater = new Timeline(new KeyFrame(Duration.millis(500.0), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 ArrayList<ChatMessage> chatLog = bot.getChatConnection().getChatLog();
@@ -64,6 +61,7 @@ public class Controller {
         }));
         chatUpdater.setCycleCount(Timeline.INDEFINITE);
         chatUpdater.play();
+        */
 
         labelUpdater = new Timeline(new KeyFrame(Duration.millis(5000.0), new EventHandler<ActionEvent>() {
             @Override
@@ -84,7 +82,7 @@ public class Controller {
             return;
         }
 
-        chatUpdater.stop();
+        //chatUpdater.stop();
         labelUpdater.stop();
         setBotRunning(false);
         bot.stopBot();

@@ -27,10 +27,14 @@ public class TwitchChatConnection {
     private long lastTwitchUserQueryTime = -1;
     private long lastDbWriteTime = -1;
 
+    private boolean connected = false;
+
     public TwitchChatConnection(String channel) throws Exception {
         this.channel = channel;
         config = ConfigHandler.getInstance();
+    }
 
+    private void initialize() throws Exception {
         Socket socket = new Socket(config.getServerName(), config.getPort(this.channel));
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -45,7 +49,9 @@ public class TwitchChatConnection {
         chatLog = new ArrayList<ChatMessage>();
     }
 
-    public boolean connect() throws IOException {
+    public boolean connect() throws Exception {
+
+        initialize();
 
         if (connectToServer()) {
             // Join the channel
@@ -57,9 +63,17 @@ public class TwitchChatConnection {
             lastTwitchUserQueryTime = System.currentTimeMillis() - ChatBotUtils.ONE_MINUTE_IN_MILLIS;
             lastDbWriteTime = initialConnectionTime;
 
+            //sendChatMessage("Hi there! I'm just here to monitor for the time being. I'll lurk silently. I promise.");
+
+            System.out.println("successfully connected to " + channel);
+            connected = true;
             return true;
+        } else {
+            System.out.println("Failed to connect to " + channel);
+            connected = false;
+            return false;
         }
-        return false;
+
 
     }
 
@@ -89,12 +103,21 @@ public class TwitchChatConnection {
         fullUserDataList.updateAllUsers();
         fileIO.writeUserDataToDatabase(fullUserDataList);
         fileIO.writeQuoteListToFile(quotes);
+
+        writer = null;
+        reader = null;
+        chatLog.clear();
+
+        initialConnectionTime = -1;
+        lastTwitchUserQueryTime = -1;
+        lastDbWriteTime = -1;
+        connected = false;
     }
 
     public void handleQueuedMessages() throws Exception {
         while (reader.ready()) {
             String line = reader.readLine();
-            System.out.println("NEW MESSAGE: " + line);
+            //System.out.println("NEW MESSAGE: " + line);
             ChatMessage message = new ChatMessage(line);
             if (message.getMessageType() == ChatMessageType.PING) {
                 replyToPing(line);
@@ -123,7 +146,7 @@ public class TwitchChatConnection {
     }
 
     public void sendChatMessage(String message) {
-        System.out.println("LOG: Sending a chat message: " + message);
+        System.out.println("LOG: Sending message in channel " + this.channel + ":" + message);
         try {
             writer.write("PRIVMSG " + this.channel + " :" + message + "\r\n");
             writer.flush();
@@ -190,7 +213,7 @@ public class TwitchChatConnection {
         }
 
         //USER COMMANDS
-        if (message.getMessage().startsWith("!hp")) {
+        if (message.getMessage().startsWith("!hp") && config.isUserTrackingCommandsEnabled(this.channel)) {
             userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
@@ -213,7 +236,7 @@ public class TwitchChatConnection {
             }
         }
 
-        if (message.getMessage().startsWith("!pp")) {
+        if (message.getMessage().startsWith("!pp") && config.isUserTrackingCommandsEnabled(this.channel)) {
             userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
@@ -237,8 +260,9 @@ public class TwitchChatConnection {
         }
 
         //Only users with that have been in chat for the configured time are allowed to use this option (And mods)
-        if (message.getMessage().startsWith("!quote") && (userData.getNumMillis() >
-                config.getTimeNeededToQuote(this.channel) || userData.getUserType() == UserType.MODERATOR)) {
+        if (message.getMessage().startsWith("!quote") && config.isQuotesEnabled(this.channel) &&
+                (userData.getNumMillis() > config.getTimeNeededToQuote(this.channel) ||
+                        userData.getUserType() == UserType.MODERATOR)) {
             userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
             String[] splitLine = message.getMessage().split("\\s+");
             if (splitLine.length == 1) {
@@ -274,7 +298,7 @@ public class TwitchChatConnection {
             sendChatMessage("The stream has been up for " + ChatBotUtils.millisToReadableFormat(curTime - initialConnectionTime));
         }
 
-        if (message.getMessage().equals("!roulette")) {
+        if (message.getMessage().equals("!roulette") && config.isRouletteEnabled(this.channel)) {
             userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
             // Gets a random number from 1 - 128
             int rolledValue = ChatBotUtils.random.nextInt(128) + 1;
@@ -346,5 +370,13 @@ public class TwitchChatConnection {
             fileIO.writeQuoteListToFile(quotes);
             lastDbWriteTime = System.currentTimeMillis();
         }
+    }
+
+    public boolean isConnected() {
+        return this.connected;
+    }
+
+    public String getChannel() {
+        return this.channel;
     }
 }

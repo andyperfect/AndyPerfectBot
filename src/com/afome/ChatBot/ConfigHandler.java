@@ -28,6 +28,7 @@ public class ConfigHandler {
     }
 
     private ConfigHandler() throws IOException {
+        System.out.println("Beginning config read");
         channelConfigs = new HashMap<String, HashMap<String, Object>>();
 
         String configContent = new String(Files.readAllBytes(Paths.get("data" + File.separator + "config.json")));
@@ -46,6 +47,9 @@ public class ConfigHandler {
             channelConfig.put("time_needed_to_quote", curChannelJson.getLong("time_needed_to_quote"));
             channelConfig.put("time_between_user_commands", curChannelJson.getLong("time_between_user_commands"));
             channelConfig.put("enable_bot_ban", curChannelJson.getInt("enable_bot_ban") == 1);
+            channelConfig.put("enable_user_tracking_commands", curChannelJson.getInt("enable_user_tracking_commands") == 1);
+            channelConfig.put("enable_quotes", curChannelJson.getInt("enable_quotes") == 1);
+            channelConfig.put("enable_roulette", curChannelJson.getInt("enable_roulette") == 1);
             channelConfig.put("enable_bot_commands", curChannelJson.getInt("enable_bot_commands") == 1);
 
             JSONObject users = curChannelJson.getJSONObject("users");
@@ -59,6 +63,7 @@ public class ConfigHandler {
             channelConfig.put("mods", channelMods);
             channelConfigs.put(curChannelJson.getString("channel"), channelConfig);
         }
+        System.out.println("Ending config read");
     }
 
     public String getServerName() {
@@ -99,6 +104,18 @@ public class ConfigHandler {
 
     public boolean isBotBanEnabled(String channel) {
         return (Boolean) channelConfigs.get(channel).get("enable_bot_ban");
+    }
+
+    public boolean isUserTrackingCommandsEnabled(String channel) {
+        return (Boolean) channelConfigs.get(channel).get("enable_user_tracking_commands");
+    }
+
+    public boolean isQuotesEnabled(String channel) {
+        return (Boolean) channelConfigs.get(channel).get("enable_quotes");
+    }
+
+    public boolean isRouletteEnabled(String channel) {
+        return (Boolean) channelConfigs.get(channel).get("enable_roulette");
     }
 
     public boolean isBotCommandsEnabled(String channel) {

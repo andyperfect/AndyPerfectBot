@@ -24,7 +24,7 @@ public class UserData implements Comparable<UserData> {
 
     public void joined() {
         if (joinTimeMillis == -1) {
-            System.out.println("LOG: Marking " + user + " as joined");
+            //System.out.println("LOG: Marking " + user + " as joined");
             joinTimeMillis = System.currentTimeMillis();
         }
     }

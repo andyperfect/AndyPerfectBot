@@ -4,20 +4,35 @@
   "password":"oauth:whatevermyoauthkeyhappenstobe",
   "channels": [
     {
-      "channel": "#destinationchannel",
+      "channel": "#channel1",
       "port": 6667,
       "enabled": 1,
       "users": {
-        "op": "destinationchannel",
-        "moderators": [
-          "user1",
-          "user2",
-          "user3"
-        ]
+        "op": "channel1",
+        "moderators": []
       },
       "time_needed_to_quote":86400000,
       "time_between_user_commands": 30000,
-      "enable_bot_ban":1,
+      "enable_bot_ban":0,
+      "enable_user_tracking_commands":0,
+      "enable_quotes":0,
+      "enable_roulette":0,
+      "enable_bot_commands":0
+    },
+    {
+      "channel": "#channel2",
+      "port": 6667,
+      "enabled": 0,
+      "users": {
+        "op": "channel2",
+        "moderators": []
+      },
+      "time_needed_to_quote":86400000,
+      "time_between_user_commands": 60000,
+      "enable_bot_ban":0,
+      "enable_user_tracking_commands":1,
+      "enable_quotes":0,
+      "enable_roulette":0,
       "enable_bot_commands":1
     }
   ]
