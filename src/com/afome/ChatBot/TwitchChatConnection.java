@@ -46,8 +46,11 @@ public class TwitchChatConnection {
 
         quotes = fileIO.createQuoteListFromFile();
 
-        chatLog = new ArrayList<ChatMessage>();
-    }
+        if (chatLog == null) {
+            chatLog = new ArrayList<ChatMessage>();
+        }
+        }
+
 
     public boolean connect() throws Exception {
 

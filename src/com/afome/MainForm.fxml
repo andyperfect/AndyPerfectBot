@@ -25,7 +25,7 @@
 
     <center>
         <!-- <TabPane style=" -fx-border-color:black; -fx-border-width: 1; -fx-border-style: solid;"> -->
-        <TabPane>
+        <TabPane fx:id="chatTabPane">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"></Insets>
             </padding>

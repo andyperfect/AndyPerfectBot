@@ -2,6 +2,7 @@ package com.afome;
 
 import com.afome.ChatBot.ChatBot;
 import com.afome.ChatBot.ChatMessage;
+import com.afome.ChatBot.TwitchChatConnection;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -9,21 +10,23 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.paint.Paint;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Controller {
     ChatBot bot;
-    private int lastChatMessageIndex = -1;
 
     Timeline chatUpdater;
     Timeline labelUpdater;
 
+    HashMap<String, Integer> channelChatIndex = new HashMap<String, Integer>();
 
-    @FXML private TextArea chatTextArea;
+    @FXML private TabPane chatTabPane;
     @FXML private Label labelBotRunning;
 
     private final String botRunningText = "Bot Running";
@@ -43,25 +46,38 @@ public class Controller {
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
+        for (TwitchChatConnection connection : bot.getChatConnections()) {
+            channelChatIndex.put(connection.getChannel(), 0);
+        }
 
-        /* chatUpdater = new Timeline(new KeyFrame(Duration.millis(500.0), new EventHandler<ActionEvent>() {
+        chatUpdater = new Timeline(new KeyFrame(Duration.millis(1000.0), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                ArrayList<ChatMessage> chatLog = bot.getChatConnection().getChatLog();
 
-                //We have new chat messages
-                if (lastChatMessageIndex + 1 < chatLog.size()) {
-                    int i;
-                    for (i = chatLog.size() - 1; i > lastChatMessageIndex; i--) {
-                        chatTextArea.appendText(chatLog.get(i).toString() + "\n");
+                for (TwitchChatConnection connection : bot.getChatConnections()) {
+                    if (connection.isConnected()) {
+                        ArrayList<ChatMessage> chatLog = connection.getChatLog();
+
+                        //We have new chat messages
+                        int lastChatMessageIndex = channelChatIndex.get(connection.getChannel());
+                        if (lastChatMessageIndex < chatLog.size()) {
+                            TextArea chatTextArea =
+                                    ((TextArea)chatTabPane.lookup("#chat_text_area_" + connection.getChannel()));
+                            int i;
+                            for (i = lastChatMessageIndex; i < chatLog.size(); i++) {
+                                chatTextArea.appendText(chatLog.get(i).toString() + "\n");
+                            }
+                            channelChatIndex.put(connection.getChannel(), i);
+                        }
                     }
-                    lastChatMessageIndex = i + 1;
                 }
+
+
             }
         }));
         chatUpdater.setCycleCount(Timeline.INDEFINITE);
         chatUpdater.play();
-        */
+
 
         labelUpdater = new Timeline(new KeyFrame(Duration.millis(5000.0), new EventHandler<ActionEvent>() {
             @Override

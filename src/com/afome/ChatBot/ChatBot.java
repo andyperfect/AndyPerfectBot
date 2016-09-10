@@ -126,4 +126,8 @@ public class ChatBot implements Runnable {
         }
         return false;
     }
+
+    public ArrayList<TwitchChatConnection> getChatConnections() {
+        return chatConnections;
+    }
 }
