@@ -1,5 +1,6 @@
 package com.afome.ChatBot;
 
+import com.afome.APBotMain;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -10,11 +11,12 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.net.URL;
 import java.net.HttpURLConnection;
+import java.util.logging.Logger;
 
 public class TwitchUtils {
+    public static final Logger log = Logger.getLogger(APBotMain.class.getName());
 
     public static ArrayList<String> getUsersInChat(String channel) {
-        System.out.println("Querying Twitch channel '" + channel + "' for users in chat");
         ArrayList<String> users = new ArrayList<String>();
         try {
             URL url = new URL("http://tmi.twitch.tv/group/user/" + channel + "/chatters");
@@ -40,18 +42,17 @@ public class TwitchUtils {
                 }
             }
 
-
         } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return users;
+            log.warning(e.toString());
+            return null;
         } catch (java.net.SocketTimeoutException e) {
-            e.printStackTrace();
-            return users;
+            log.warning(e.toString());
+            return null;
         } catch (IOException e) {
-            e.printStackTrace();
-            return users;
+            log.warning(e.toString());
+            return null;
         }
-        System.out.println("Querying Twitch channel '" + channel + "' yielded " + users.size() + " viewers");
+        log.info("Querying Twitch channel '" + channel + "' yielded " + users.size() + " viewers");
         return users;
     }
     public static boolean isChannelLive(String channel) {

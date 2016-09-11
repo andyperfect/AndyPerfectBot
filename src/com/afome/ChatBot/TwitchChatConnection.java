@@ -360,11 +360,13 @@ public class TwitchChatConnection {
     }
 
     public void iteration() {
-        if (System.currentTimeMillis() - lastTwitchUserQueryTime >= ChatBotUtils.ONE_MINUTE_IN_MILLIS) {
+        if (System.currentTimeMillis() - lastTwitchUserQueryTime >= ChatBotUtils.FIVE_MINUTES_IN_MILLIS) {
             //Query Twitch for users in chat and update user list accordingly
             ArrayList<String> usersInChat = TwitchUtils.getUsersInChat(
                     ChatBotUtils.stripHashtagFromChannel(this.channel));
-            fullUserDataList.handleCurrentChatters(usersInChat);
+            if (usersInChat != null) {
+                fullUserDataList.handleCurrentChatters(usersInChat);
+            }
             lastTwitchUserQueryTime = System.currentTimeMillis();
         }
         if (System.currentTimeMillis() - lastDbWriteTime >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
