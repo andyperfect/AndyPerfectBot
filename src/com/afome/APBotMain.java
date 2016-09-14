@@ -5,11 +5,9 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.Tab;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -21,6 +19,7 @@ import java.util.logging.SimpleFormatter;
 
 public class APBotMain extends Application{
     public static final Logger log = Logger.getLogger(APBotMain.class.getName());
+    private static Controller controller;
 
     public static void main(String args[]) throws Exception {
         initializeLogger();
@@ -30,14 +29,17 @@ public class APBotMain extends Application{
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("MainForm.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MainForm.fxml"));
+        Pane pane = loader.load();
+        controller = loader.<Controller>getController();
+
         primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 1024, 768));
+        primaryStage.setScene(new Scene(pane, 1024, 768));
 
         ConfigHandler config = ConfigHandler.getInstance();
         for (String channel : config.getChannels()) {
             if (config.isChannelEnabled(channel)) {
-                ((TabPane) ((BorderPane) root).getCenter()).getTabs().add(createNewChannelTab(channel));
+                ((TabPane) ((BorderPane) pane).getCenter()).getTabs().add(createNewChannelTab(channel));
             }
         }
 
@@ -70,7 +72,10 @@ public class APBotMain extends Application{
         TextField textField = new TextField();
         textField.setId("chat_text_field_" + channel);
         textField.setPrefColumnCount(50);
-        vbox.getChildren().addAll(textArea, textField);
+        Label channelLiveStatus = new Label();
+        channelLiveStatus.setId("chat_label_live_status_" + channel);
+        channelLiveStatus.setText("Channel is NOT LIVE");
+        vbox.getChildren().addAll(textArea, textField, channelLiveStatus);
         tab.setContent(vbox);
         return tab;
     }
@@ -78,4 +83,9 @@ public class APBotMain extends Application{
     public static void teardownLogger() {
         log.setUseParentHandlers(false);
     }
+
+    public static Controller getController() {
+        return controller;
+    }
+
 }

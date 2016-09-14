@@ -1,7 +1,6 @@
 package com.afome.ChatBot;
 
 import com.afome.APBotMain;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -20,7 +19,6 @@ public class ChatBot implements Runnable {
 
 
     public ChatBot() {
-
     }
 
     public void run() {
@@ -56,6 +54,7 @@ public class ChatBot implements Runnable {
                         System.out.println("Stream " + connection.getChannel() + " turned on. Connecting...");
                         previousChannelStatuses.put(connection.getChannel(), true);
                         connection.connect();
+
                     }
                     // Stream just turned off
                     if (previousChannelStatuses.get(connection.getChannel()) &&

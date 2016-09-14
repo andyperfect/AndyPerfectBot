@@ -116,4 +116,16 @@ public class Controller {
             labelBotRunning.setTextFill(Paint.valueOf("#d50b0a"));
         }
     }
+
+    public void setChannelLive(String channel, boolean live) {
+        Label chatLiveLabel = ((Label)chatTabPane.lookup("#chat_label_live_status_" + channel));
+        System.out.println("CHAT LABEL");
+        System.out.println(chatLiveLabel);
+        if (live) {
+            chatLiveLabel.setText("Channel is LIVE");
+        } else {
+            chatLiveLabel.setText("Channel is NOT LIVE");
+        }
+
+    }
 }

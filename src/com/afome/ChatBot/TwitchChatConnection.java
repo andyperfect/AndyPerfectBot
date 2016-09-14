@@ -44,7 +44,9 @@ public class TwitchChatConnection {
         fullUserDataList = fileIO.createUserDataFromDatabase(ChatBotUtils.stripHashtagFromChannel(channel));
         fullUserDataList.assignModerators(config.getMods(this.channel));
 
-        quotes = fileIO.createQuoteListFromFile();
+        if (config.isQuotesEnabled(this.channel)) {
+            quotes = fileIO.createQuoteListFromFile();
+        }
 
         if (chatLog == null) {
             chatLog = new ArrayList<ChatMessage>();
@@ -105,7 +107,9 @@ public class TwitchChatConnection {
     public void terminateConnection() {
         fullUserDataList.updateAllUsers();
         fileIO.writeUserDataToDatabase(fullUserDataList);
-        fileIO.writeQuoteListToFile(quotes);
+        if (config.isQuotesEnabled(this.channel)) {
+            fileIO.writeQuoteListToFile(quotes);
+        }
 
         writer = null;
         reader = null;
