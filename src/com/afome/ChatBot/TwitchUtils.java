@@ -16,11 +16,14 @@ import java.util.logging.Logger;
 public class TwitchUtils {
     public static final Logger log = Logger.getLogger(APBotMain.class.getName());
 
+
     public static ArrayList<String> getUsersInChat(String channel) {
         ArrayList<String> users = new ArrayList<String>();
         try {
+            ConfigHandler config = ConfigHandler.getInstance();
             URL url = new URL("http://tmi.twitch.tv/group/user/" + channel + "/chatters");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestProperty("Client-ID", config.getClientId());
             con.setConnectTimeout(5000);
             con.setRequestMethod("GET");
 
@@ -30,6 +33,7 @@ public class TwitchUtils {
             while (null != (tmp = br.readLine())) {
                 responseBuilder.append(tmp);
             }
+            System.out.println(responseBuilder.toString());
             JSONObject fullJson = new JSONObject(responseBuilder.toString());
             JSONObject chattersJson;
             if (fullJson.has("chatters")) {
@@ -57,8 +61,10 @@ public class TwitchUtils {
     }
     public static boolean isChannelLive(String channel) {
         try {
+            ConfigHandler config = ConfigHandler.getInstance();
             URL url = new URL("https://api.twitch.tv/kraken/streams/" + channel);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestProperty("Client-ID", config.getClientId());
             con.setConnectTimeout(5000);
             con.setRequestMethod("GET");
 

@@ -2,6 +2,7 @@
   "servername":"irc.twitch.tv",
   "nick":"mybotusername",
   "password":"oauth:whatevermyoauthkeyhappenstobe",
+  "client_id": "twitch_developer_client_id",
   "channels": [
     {
       "channel": "#channel1",

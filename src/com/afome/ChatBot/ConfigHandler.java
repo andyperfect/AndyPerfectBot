@@ -19,6 +19,7 @@ public class ConfigHandler {
     private String serverName = "";
     private String nick = "";
     private String password = "";
+    private String clientId = "";
 
     public static ConfigHandler getInstance() throws IOException {
         if (instance == null) {
@@ -37,6 +38,7 @@ public class ConfigHandler {
         serverName = jsonConfigObject.getString("servername");
         nick = jsonConfigObject.getString("nick");
         password = jsonConfigObject.getString("password");
+        clientId = jsonConfigObject.getString("client_id");
 
         JSONArray channels = jsonConfigObject.getJSONArray("channels");
         for (int i = 0; i < channels.length(); i++) {
@@ -76,6 +78,10 @@ public class ConfigHandler {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getClientId() {
+        return clientId;
     }
 
     public ArrayList<String> getChannels() {

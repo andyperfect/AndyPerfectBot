@@ -227,7 +227,8 @@ public class TwitchChatConnection {
                 if (userData == null) {
                     sendChatMessage(message.getUser() + " has never been in this channel");
                 } else {
-                    sendChatMessage(message.getUser() + " has been active for " + ChatBotUtils.millisToReadableFormat(userData.getNumMillis()));
+                    int rank = fullUserDataList.getUserTimeRank(userData);
+                    sendChatMessage(message.getUser() + " is ranked " + rank + " with " + ChatBotUtils.millisToReadableFormat(userData.getNumMillis()) + " in chat");
                 }
             } else if (splitLine.length == 2) {
                 UserData otherUserData = fullUserDataList.findUser(splitLine[1].toLowerCase());
@@ -237,7 +238,8 @@ public class TwitchChatConnection {
                     if (splitLine[1].equalsIgnoreCase(config.getNick())) {
                         sendChatMessage("You don't need to know about me");
                     } else {
-                        sendChatMessage(splitLine[1] + " has been active for " + ChatBotUtils.millisToReadableFormat(otherUserData.getNumMillis()));
+                        int rank = fullUserDataList.getUserTimeRank(otherUserData);
+                        sendChatMessage(splitLine[1] + " is ranked " + rank + " with " + ChatBotUtils.millisToReadableFormat(otherUserData.getNumMillis()) + " in chat");
                     }
                 }
             }
@@ -250,7 +252,8 @@ public class TwitchChatConnection {
                 if (userData == null) {
                     sendChatMessage(message.getUser() + " has never been in this channel");
                 } else {
-                    sendChatMessage(message.getUser() + "' has sent " + userData.getChatCount() + " chat messages");
+                    int rank = fullUserDataList.getUserChatRank(userData);
+                    sendChatMessage(message.getUser() + " is ranked " + rank + " with " + userData.getChatCount() + " chat messages");
                 }
             } else if (splitLine.length == 2) {
                 UserData otherUserData = fullUserDataList.findUser(splitLine[1].toLowerCase());
@@ -260,7 +263,8 @@ public class TwitchChatConnection {
                     if (splitLine[1].equalsIgnoreCase(config.getNick())) {
                         sendChatMessage("You don't need to know about me");
                     } else {
-                        sendChatMessage(splitLine[1] + " has sent " + otherUserData.getChatCount() + " chat messages");
+                        int rank = fullUserDataList.getUserChatRank(otherUserData);
+                        sendChatMessage(splitLine[1] + " is ranked " + rank + " with " + otherUserData.getChatCount() + " chat messages");
                     }
                 }
             }

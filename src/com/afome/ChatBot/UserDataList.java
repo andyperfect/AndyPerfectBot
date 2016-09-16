@@ -73,6 +73,28 @@ public class UserDataList extends ArrayList<UserData> {
         }
     }
 
+    // Returns the user's time rank among all other users in the same channel
+    public int getUserTimeRank(UserData user) {
+        int numUsersHigher = 0;
+        for (UserData userData : this) {
+            if (userData.getNumMillis() > user.getNumMillis()) {
+                numUsersHigher++;
+            }
+        }
+        return numUsersHigher + 1;
+    }
+
+    // Returns the user's chat rank among all other users in the same channel
+    public int getUserChatRank(UserData user) {
+        int numUsersHigher = 0;
+        for (UserData userData : this) {
+            if (userData.getChatCount() > user.getChatCount()) {
+                numUsersHigher++;
+            }
+        }
+        return numUsersHigher + 1;
+    }
+
     public String getChannel() {
         return channel;
     }
