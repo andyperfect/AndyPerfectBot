@@ -4,10 +4,11 @@ import java.io.File;
 import java.sql.*;
 
 public class DBConnection {
+    private static DBConnection instance = null;
     private String dbURL = "jdbc:sqlite:data" + File.separator + "APTwitchBotDB.db";
     Connection conn = null;
 
-    public DBConnection() {
+    private DBConnection() {
         try {
             Class.forName("org.sqlite.JDBC");
             conn = DriverManager.getConnection(dbURL);
@@ -16,6 +17,13 @@ public class DBConnection {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static DBConnection getInstance() {
+        if (instance == null) {
+            instance = new DBConnection();
+        }
+        return instance;
     }
 
     public boolean createChannel(String channel) {
@@ -53,6 +61,60 @@ public class DBConnection {
                                 "ON u.channel_id = c.id " +
                                 "WHERE c.name = '%s';",
                         channel);
+                ResultSet rs = statement.executeQuery(queryString);
+                while (rs.next()) {
+                    returnList.add(new UserData(rs.getString("username"), rs.getLong("timeconnected"), rs.getInt("chatcount" )));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return returnList;
+    }
+
+    public UserDataList getAllUserInfoRankedByTime(String channel, String botUsername) {
+        UserDataList returnList = new UserDataList();
+        returnList.setChannel(channel);
+        try {
+            if (conn != null) {
+                Statement statement = conn.createStatement();
+                statement.setQueryTimeout(10);
+                String queryString = String.format(
+                        "SELECT u.username, u.channel_id, u.timeconnected, u.chatcount " +
+                                "FROM user u " +
+                                "INNER JOIN channel c " +
+                                "ON u.channel_id = c.id " +
+                                "WHERE c.name = '%s' " +
+                                "AND u.username != '%s' " +
+                                "ORDER BY u.timeconnected DESC;",
+                        channel, botUsername);
+                ResultSet rs = statement.executeQuery(queryString);
+                while (rs.next()) {
+                    returnList.add(new UserData(rs.getString("username"), rs.getLong("timeconnected"), rs.getInt("chatcount" )));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return returnList;
+    }
+
+    public UserDataList getAllUserInfoRankedByChatCount(String channel, String botUsername) {
+        UserDataList returnList = new UserDataList();
+        returnList.setChannel(channel);
+        try {
+            if (conn != null) {
+                Statement statement = conn.createStatement();
+                statement.setQueryTimeout(10);
+                String queryString = String.format(
+                        "SELECT u.username, u.channel_id, u.timeconnected, u.chatcount " +
+                                "FROM user u " +
+                                "INNER JOIN channel c " +
+                                "ON u.channel_id = c.id " +
+                                "WHERE c.name = '%s' " +
+                                "AND u.username != '%s' " +
+                                "ORDER BY u.chatcount DESC;",
+                        channel, botUsername);
                 ResultSet rs = statement.executeQuery(queryString);
                 while (rs.next()) {
                     returnList.add(new UserData(rs.getString("username"), rs.getLong("timeconnected"), rs.getInt("chatcount" )));

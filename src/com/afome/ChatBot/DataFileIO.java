@@ -3,6 +3,7 @@ package com.afome.ChatBot;
 import com.afome.APBotMain;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,10 +19,12 @@ public class DataFileIO {
 
     private String dateTimeFormatString = "yyyy-MM-dd";
     DateTimeFormatter quoteDateFormatter = null;
+    ConfigHandler config;
 
-    DBConnection db = new DBConnection();
+    DBConnection db = DBConnection.getInstance();
 
-    public DataFileIO() {
+    public DataFileIO() throws IOException {
+        config = ConfigHandler.getInstance();
         quoteDateFormatter = DateTimeFormatter.ofPattern(dateTimeFormatString);
     }
 
@@ -35,6 +38,28 @@ public class DataFileIO {
 
     public void writeChannelToDatabase(String channel) {
         db.createChannel(channel);
+    }
+
+    public UserData getUserAtTimeRank(String channel, int rank) {
+        if (rank < 1) {
+            return null;
+        }
+        UserDataList users = db.getAllUserInfoRankedByTime(channel, config.getNick());
+        if (rank > users.size()) {
+            return null;
+        }
+        return users.get(rank - 1);
+    }
+
+    public UserData getUserAtChatRank(String channel, int rank) {
+        if (rank < 1) {
+            return null;
+        }
+        UserDataList users = db.getAllUserInfoRankedByChatCount(channel, config.getNick());
+        if (rank > users.size()) {
+            return null;
+        }
+        return users.get(rank - 1);
     }
 
     public ArrayList<Quote> createQuoteListFromFile() {
