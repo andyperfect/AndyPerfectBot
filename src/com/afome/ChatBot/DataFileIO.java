@@ -62,6 +62,35 @@ public class DataFileIO {
         return users.get(rank - 1);
     }
 
+    public Object[] getUserRank(String channel, String username, String rankType) {
+        System.out.println("Getting data for user " + username);
+        Object[] returnArray = new Object[2];
+        UserDataList users;
+        if (rankType.equals("time")) {
+            users = db.getAllUserInfoRankedByTime(channel, config.getNick());
+        } else {
+            users = db.getAllUserInfoRankedByChatCount(channel, config.getNick());
+        }
+        System.out.println("LENGTH OF USERS: " + String.valueOf(users.size()));
+        int rank = 1;
+        for (UserData user : users) {
+            System.out.println(user.getUser());
+            System.out.println(username);
+            if (user.getUser().equalsIgnoreCase(username)) {
+                System.out.println("FOUND");
+                returnArray[0] = user;
+                returnArray[1] = rank;
+                return returnArray;
+            } else {
+                rank++;
+            }
+        }
+        System.out.println("DIDNT FIND");
+        returnArray[0] = null;
+        returnArray[1] = -1;
+        return returnArray;
+    }
+
     public ArrayList<Quote> createQuoteListFromFile() {
         ArrayList<Quote> quotes = new ArrayList<Quote>();
         Scanner fileScanner = null;
