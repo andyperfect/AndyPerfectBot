@@ -1,7 +1,6 @@
 package com.afome.ChatBot;
 
 import com.afome.APBotMain;
-import com.afome.ChatBot.ChatBotUtils;
 
 import java.io.*;
 import java.net.Socket;
@@ -206,7 +205,7 @@ public class TwitchChatConnection {
         }
         userData.handleChatMessage();
 
-        //If bot ban is enabled, the user has sent only 1 message and it's a link, insta-ban
+        //If bot ban is enabled, the user has sent only 1 message and it's a link, instant ban
         if (config.isBotBanEnabled(this.channel) && userData.getChatCount() <= 1 && ChatBotUtils.containsLink(message.getMessage())) {
             banUser(message, "First chat message contained a link. Assumed bot");
         }
@@ -220,93 +219,14 @@ public class TwitchChatConnection {
         }
 
         //USER COMMANDS
-        if (message.getMessage().startsWith("!hp") && config.isUserTrackingCommandsEnabled(this.channel)) {
+        if (message.getMessage().startsWith("!hp")) {
             userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
-            String[] splitLine = message.getMessage().split("\\s+");
-
-            //The User is requesting hp for themselves
-            if (splitLine.length == 1 && splitLine[0].equalsIgnoreCase("!hp")) {
-                if (userData == null) {
-                    sendChatMessage(message.getUser() + " has never been in this channel");
-                } else {
-                    int rank = fullUserDataList.getUserTimeRank(userData);
-                    sendChatMessage(message.getUser() + " is ranked " + rank + " with " + ChatBotUtils.millisToReadableFormat(userData.getNumMillis()) + " in chat");
-                }
-
-            } else if (splitLine.length == 2 && splitLine[0].equalsIgnoreCase("!hp")) {
-                //The User is requesting the user at a specific rank
-                if (splitLine[1].startsWith("#")) {
-                    String number = splitLine[1].substring(1, splitLine[1].length());
-                    try {
-                        int rankToFind = Integer.parseInt(number);
-                        UserData userAtRank = fileIO.getUserAtTimeRank(ChatBotUtils.stripHashtagFromChannel(this.channel), rankToFind);
-                        if (userAtRank == null) {
-                            sendChatMessage("invalid rank");
-                        } else {
-                            sendChatMessage("Rank " + String.valueOf(rankToFind) + ": " + userAtRank.getUser() + " has " +
-                                    ChatBotUtils.millisToReadableFormat(userAtRank.getNumMillis()) + " in chat");
-                        }
-                    } catch (Exception e) {
-                        //Ignore
-                    }
-                //The user is requesting the data for another user
-                } else {
-                    UserData otherUserData = fullUserDataList.findUser(splitLine[1].toLowerCase());
-                    if (otherUserData == null) {
-                        sendChatMessage(splitLine[1] + " has never been in this channel");
-                    } else {
-                        if (splitLine[1].equalsIgnoreCase(config.getNick())) {
-                            sendChatMessage("You don't need to know about me");
-                        } else {
-                            int rank = fullUserDataList.getUserTimeRank(otherUserData);
-                            sendChatMessage(splitLine[1] + " is ranked " + rank + " with " + ChatBotUtils.millisToReadableFormat(otherUserData.getNumMillis()) + " in chat");
-                        }
-                    }
-                }
-            }
+            handleHPCommand(message, userData);
         }
 
-        if (message.getMessage().startsWith("!pp") && config.isUserTrackingCommandsEnabled(this.channel)) {
+        if (message.getMessage().startsWith("!pp")) {
             userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
-            String[] splitLine = message.getMessage().split("\\s+");
-            if (splitLine.length == 1 && splitLine[0].equalsIgnoreCase("!pp")) {
-                if (userData == null) {
-                    sendChatMessage(message.getUser() + " has never been in this channel");
-                } else {
-                    int rank = fullUserDataList.getUserChatRank(userData);
-                    sendChatMessage(message.getUser() + " is ranked " + rank + " with " + userData.getChatCount() + " chat messages");
-                }
-            } else if (splitLine.length == 2 && splitLine[0].equalsIgnoreCase("!pp")) {
-                //The User is requesting the user at a specific rank
-                if (splitLine[1].startsWith("#")) {
-                    String number = splitLine[1].substring(1, splitLine[1].length());
-                    try {
-                        int rankToFind = Integer.parseInt(number);
-                        UserData userAtRank = fileIO.getUserAtChatRank(ChatBotUtils.stripHashtagFromChannel(this.channel), rankToFind);
-                        if (userAtRank == null) {
-                            sendChatMessage("invalid rank");
-                        } else {
-                            sendChatMessage("Rank " + String.valueOf(rankToFind) + ": " + userAtRank.getUser() + " has " +
-                                    userAtRank.getChatCount() + " messages in chat");
-                        }
-                    } catch (Exception e) {
-                        //Ignore
-                    }
-                //The user is requesting the data for another user
-                } else {
-                    UserData otherUserData = fullUserDataList.findUser(splitLine[1].toLowerCase());
-                    if (otherUserData == null) {
-                        sendChatMessage(splitLine[1] + " has never been in this channel");
-                    } else {
-                        if (splitLine[1].equalsIgnoreCase(config.getNick())) {
-                            sendChatMessage("You don't need to know about me");
-                        } else {
-                            int rank = fullUserDataList.getUserChatRank(otherUserData);
-                            sendChatMessage(splitLine[1] + " is ranked " + rank + " with " + otherUserData.getChatCount() + " chat messages");
-                        }
-                    }
-                }
-            }
+            handlePPCommand(message, userData);
         }
 
         //Only users with that have been in chat for the configured time are allowed to use this option (And mods)
@@ -379,6 +299,103 @@ public class TwitchChatConnection {
                 responseMessage += "You literally could not have been further from the 1/128 roll. Congratulations.";
             }
             sendChatMessage(responseMessage);
+        }
+    }
+
+    public void handleHPCommand(ChatMessage message, UserData userData) {
+        if (!config.isUserTrackingCommandsEnabled(this.channel)) {
+            return;
+        }
+        if (message == null || userData == null) {
+            return;
+        }
+        String[] splitLine = message.getMessage().split("\\s+");
+
+        if (!splitLine[0].equals("!hp")) {
+            return;
+        }
+        System.out.println("hp request valid");
+        if (splitLine.length == 1) {
+            // User is requesting data for themselves
+            Object[] userRank = fileIO.getUserRank(ChatBotUtils.stripHashtagFromChannel(this.channel), userData.getUser(), "time");
+            if (userRank[0] != null) {
+                sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
+                        ChatBotUtils.millisToReadableFormat(((UserData)userRank[0]).getNumMillis()) + " in chat");
+            }
+        } else if (splitLine.length == 2) {
+            if (splitLine[1].startsWith("#")) {
+                // User is requesting data for a user at a given rank
+                try {
+                    String number = splitLine[1].substring(1, splitLine[1].length());
+                    int rankToFind = Integer.parseInt(number);
+                    UserData userAtRank = fileIO.getUserAtTimeRank(ChatBotUtils.stripHashtagFromChannel(this.channel), rankToFind);
+                    if (userAtRank != null) {
+                        sendChatMessage("Rank " + String.valueOf(rankToFind) + ": " + userAtRank.getUser() + " has " +
+                                ChatBotUtils.millisToReadableFormat(userAtRank.getNumMillis()) + " in chat");
+                    }
+                } catch (Exception e) {
+                    // Ignore
+                }
+            } else {
+                // USer is requesting data for another user
+                if (splitLine[1].toLowerCase().equals(config.getNick())) {
+                    sendChatMessage("I have no data");
+                } else {
+                    Object[] userRank = fileIO.getUserRank(ChatBotUtils.stripHashtagFromChannel(this.channel), splitLine[1].toLowerCase(), "time");
+                    if (userRank[0] != null) {
+                        sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
+                                ChatBotUtils.millisToReadableFormat(((UserData) userRank[0]).getNumMillis()) + " in chat");
+                    }
+                }
+            }
+        }
+    }
+
+    public void handlePPCommand(ChatMessage message, UserData userData) {
+        if (!config.isUserTrackingCommandsEnabled(this.channel)) {
+            return;
+        }
+        if (message == null || userData == null) {
+            return;
+        }
+        String[] splitLine = message.getMessage().split("\\s+");
+
+        if (!splitLine[0].equals("!pp")) {
+            return;
+        }
+        if (splitLine.length == 1) {
+            // User is requesting data for themselves
+            Object[] userRank = fileIO.getUserRank(ChatBotUtils.stripHashtagFromChannel(this.channel), userData.getUser(), "chat");
+            if (userRank[0] != null) {
+                sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
+                        String.valueOf(((UserData) userRank[0]).getChatCount()) + " messages in chat");
+            }
+        } else if (splitLine.length == 2) {
+            if (splitLine[1].startsWith("#")) {
+                // User is requesting data for a user at a given rank
+                try {
+                    String number = splitLine[1].substring(1, splitLine[1].length());
+                    int rankToFind = Integer.parseInt(number);
+                    UserData userAtRank = fileIO.getUserAtChatRank(ChatBotUtils.stripHashtagFromChannel(this.channel), rankToFind);
+                    if (userAtRank != null) {
+                        sendChatMessage("Rank " + String.valueOf(rankToFind) + ": " + userAtRank.getUser() + " has " +
+                                userAtRank.getChatCount() + " messages in chat");
+                    }
+                } catch (Exception e) {
+                    //Ignore
+                }
+            } else {
+                // USer is requesting data for another user
+                if (splitLine[1].toLowerCase().equals(config.getNick())) {
+                    sendChatMessage("I have no data");
+                } else {
+                    Object[] userRank = fileIO.getUserRank(ChatBotUtils.stripHashtagFromChannel(this.channel), splitLine[1].toLowerCase(), "chat");
+                    if (userRank[0] != null) {
+                        sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
+                                String.valueOf(((UserData) userRank[0]).getChatCount()) + " messages in chat");
+                    }
+                }
+            }
         }
     }
 
