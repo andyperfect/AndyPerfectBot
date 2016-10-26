@@ -44,7 +44,7 @@ public class TwitchChatConnection {
         fullUserDataList.assignModerators(config.getMods(this.channel));
 
         if (config.isQuotesEnabled(this.channel)) {
-            quotes = fileIO.createQuoteListFromFile();
+            quotes = fileIO.getChannelQuotes(ChatBotUtils.stripHashtagFromChannel(this.channel));
         }
 
         if (chatLog == null) {
@@ -107,7 +107,7 @@ public class TwitchChatConnection {
         fullUserDataList.updateAllUsers();
         fileIO.writeUserDataToDatabase(fullUserDataList);
         if (config.isQuotesEnabled(this.channel)) {
-            fileIO.writeQuoteListToFile(quotes);
+            fileIO.writeQuotesToDatabase(quotes);
         }
 
         writer = null;
@@ -240,7 +240,8 @@ public class TwitchChatConnection {
                 if (quote == null) {
                     sendChatMessage("There are no quotes available");
                 } else {
-                    sendChatMessage("\"" + quote.getQuote() + "\" (" + quote.getDate() + ")");
+                    sendChatMessage("\"" + quote.getQuote() + "\" (" +
+                            ChatBotUtils.epochToDateString(quote.getTimeInMillis()) + ")");
                 }
             } else if (splitLine.length >= 3 &&
                     splitLine[1].equalsIgnoreCase("add") &&
@@ -254,8 +255,9 @@ public class TwitchChatConnection {
                 int lastQuoteIndex = message.getMessage().lastIndexOf('"');
                 String quoteString = message.getMessage().substring(firstQuoteIndex + 1, lastQuoteIndex);
                 if (quoteString.length() > 1) {
-                    quotes.add(new Quote(quoteString));
-                    sendChatMessage("Added quote \"" + quoteString + "\"");
+                    quotes.add(new Quote(quoteString, ChatBotUtils.stripHashtagFromChannel(this.channel),
+                                    userData.getUser().toLowerCase(), false));
+                            sendChatMessage("Added quote \"" + quoteString + "\"");
                 } else {
                     sendChatMessage("Invalid quote length");
                 }
@@ -436,7 +438,7 @@ public class TwitchChatConnection {
         if (System.currentTimeMillis() - lastDbWriteTime >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
             fullUserDataList.updateAllUsers();
             fileIO.writeUserDataToDatabase(fullUserDataList);
-            fileIO.writeQuoteListToFile(quotes);
+            fileIO.writeQuotesToDatabase(quotes);
             lastDbWriteTime = System.currentTimeMillis();
         }
     }

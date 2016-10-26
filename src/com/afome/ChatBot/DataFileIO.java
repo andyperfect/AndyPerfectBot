@@ -63,7 +63,6 @@ public class DataFileIO {
     }
 
     public Object[] getUserRank(String channel, String username, String rankType) {
-        System.out.println("Getting data for user " + username);
         Object[] returnArray = new Object[2];
         UserDataList users;
         if (rankType.equals("time")) {
@@ -71,7 +70,6 @@ public class DataFileIO {
         } else {
             users = db.getAllUserInfoRankedByChatCount(channel, config.getNick());
         }
-        System.out.println("LENGTH OF USERS: " + String.valueOf(users.size()));
         int rank = 1;
         for (UserData user : users) {
             System.out.println(user.getUser());
@@ -85,50 +83,22 @@ public class DataFileIO {
                 rank++;
             }
         }
-        System.out.println("DIDNT FIND");
         returnArray[0] = null;
         returnArray[1] = -1;
         return returnArray;
     }
 
-    public ArrayList<Quote> createQuoteListFromFile() {
-        ArrayList<Quote> quotes = new ArrayList<Quote>();
-        Scanner fileScanner = null;
-        try {
-            fileScanner = new Scanner(new File(quotesFilePath));
-        } catch (Exception e) {
-            System.out.println("LOG: FAILED TO READ QUOTES FILE: " + e.getMessage());
-        }
-
-        while (fileScanner.hasNextLine()) {
-            String line = fileScanner.nextLine();
-            if (line.length() > 0) {
-                int delimIndex = line.lastIndexOf(":");
-                if (delimIndex == -1) {
-                    System.out.println("Unable to parse line: " + line);
-                } else {
-                    String quoteString = line.substring(0, delimIndex);
-                    String quoteDate = line.substring(delimIndex + 1, line.length());
-                    String[] splitDate = quoteDate.split("-");
-                    quotes.add(new Quote(quoteString, LocalDate.of(Integer.parseInt(splitDate[0]), Integer.parseInt(splitDate[1]), Integer.parseInt(splitDate[2]))));
-                }
-            } else {
-                System.out.println("LOG: Skipping line parsing on line: " + line);
-            }
-        }
+    public ArrayList<Quote> getChannelQuotes(String channel) {
+        ArrayList<Quote> quotes = db.getQuotesFromChannel(channel);
         return quotes;
-
     }
 
-    public void writeQuoteListToFile(ArrayList<Quote> quotes) {
-        try {
-            PrintWriter writer = new PrintWriter(quotesFilePath);
+    public void writeQuotesToDatabase(ArrayList<Quote> quotes) {
+        boolean success = db.writeQuotesToDatabase(quotes);
+        if (success) {
             for (Quote quote : quotes) {
-                writer.println(quote.getQuote() + ":" + quote.getDate().format(quoteDateFormatter));
+                quote.setExistsInDatabase(true);
             }
-            writer.close();
-        } catch (Exception e) {
-            System.out.println("LOG: FAILED TO WRITE QUOTES FILE: " + e.getMessage());
         }
     }
 }

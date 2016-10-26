@@ -2,6 +2,7 @@ package com.afome.ChatBot;
 
 import java.io.File;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class DBConnection {
     private static DBConnection instance = null;
@@ -198,5 +199,61 @@ public class DBConnection {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<Quote> getQuotesFromChannel(String channel) {
+        ArrayList<Quote> quotes = new ArrayList<Quote>();
+        try {
+            if (conn != null) {
+                String queryString =
+                        "SELECT q.id, c.name AS channel_name, u.username, q.quote, q.date " +
+                        "FROM quote q " +
+                        "   INNER JOIN channel c " +
+                        "   ON q.channel_id = c.id " +
+                        "   INNER JOIN user u " +
+                        "   ON q.user_id = u.id " +
+                        "WHERE c.name = ?;";
+                PreparedStatement pStatement = conn.prepareStatement(queryString);
+                pStatement.setString(1, channel);
+                ResultSet rs = pStatement.executeQuery();
+                while (rs.next()) {
+                    quotes.add(new Quote(rs.getString("quote"), rs.getString("channel_name"),
+                            rs.getString("username"), rs.getLong("date"), true));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return quotes;
+    }
+
+    public boolean writeQuotesToDatabase(ArrayList<Quote> quotes) {
+        try {
+            if (conn != null) {
+                conn.setAutoCommit(false);
+                String queryString =
+                        "INSERT INTO quote (channel_id, user_id, quote, date) " +
+                        "VALUES ( " +
+                        "(SELECT id FROM channel WHERE name=?), (SELECT id from user where username=?), ?, ?);";
+                PreparedStatement pStatement = conn.prepareStatement(queryString);
+                for (Quote quote : quotes) {
+                    if (!quote.doesExistInDatabase()) {
+                        pStatement.setString(1, quote.getChannel());
+                        pStatement.setString(2, quote.getUserWhoAdded());
+                        pStatement.setString(3, quote.getQuote());
+                        pStatement.setLong(4, quote.getTimeInMillis());
+                        pStatement.addBatch();
+                    }
+                }
+                pStatement.executeBatch();
+                pStatement.close();
+                conn.commit();
+                conn.setAutoCommit(true);
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

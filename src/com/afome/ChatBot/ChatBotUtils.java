@@ -1,9 +1,15 @@
 package com.afome.ChatBot;
 
+import java.text.SimpleDateFormat;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.format.DateTimeFormatter;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.text.DateFormat;
+import java.util.Date;
 
 public class ChatBotUtils {
 
@@ -63,6 +69,14 @@ public class ChatBotUtils {
         }
 
         return timeStringBuilder.toString();
+    }
+
+    public static String epochToDateString(long epoch) {
+        Date date = new Date(epoch);
+        final DateFormat format = new SimpleDateFormat("MM-dd-yyyy");
+        String formattedDate = format.format(date);
+
+        return formattedDate;
     }
 
     public static boolean containsLink(String input) {

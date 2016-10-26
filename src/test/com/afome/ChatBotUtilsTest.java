@@ -48,7 +48,11 @@ public class ChatBotUtilsTest {
         for (String testString : invalidLinkTests) {
             Assert.assertFalse(ChatBotUtils.containsLink(testString));
         }
+    }
 
-
+    @Test
+    public void testEpochToDateString() throws Exception {
+        String returnDate = ChatBotUtils.epochToDateString(1477464015946L);
+        Assert.assertEquals(returnDate, "10-26-2016");
     }
 }

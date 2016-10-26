@@ -1,27 +1,51 @@
 package com.afome.ChatBot;
 
-import java.time.LocalDate;
-
 public class Quote {
 
     private String quote;
-    private LocalDate date;
+    private String channel;
+    private String userWhoAdded;
+    private long timeInMillis;
+    private boolean existsInDatabase = false;
 
-    public Quote(String quote) {
+    public Quote(String quote, String channel, String user, boolean existsInDatabase) {
         this.quote = quote;
-        date = LocalDate.now();
+        this.channel = channel;
+        this.userWhoAdded = user;
+        this.timeInMillis = System.currentTimeMillis();
+        this.existsInDatabase = existsInDatabase;
+
     }
 
-    public Quote(String quote, LocalDate date) {
+    public Quote(String quote, String channel, String user, long timeInMillis, boolean existsInDatabase) {
         this.quote = quote;
-        this.date = date;
+        this.channel = channel;
+        this.userWhoAdded = user;
+        this.timeInMillis = timeInMillis;
+        this.existsInDatabase = existsInDatabase;
     }
 
     public String getQuote() {
         return quote;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public String getChannel() {
+        return channel;
+    }
+
+    public String getUserWhoAdded() {
+        return userWhoAdded;
+    }
+
+    public long getTimeInMillis() {
+        return timeInMillis;
+    }
+
+    public boolean doesExistInDatabase() {
+        return existsInDatabase;
+    }
+
+    public void setExistsInDatabase(Boolean existsInDatabase) {
+        this.existsInDatabase = existsInDatabase;
     }
 }
