@@ -345,7 +345,7 @@ public class TwitchChatConnection {
                 } else {
                     Object[] userRank = fileIO.getUserRank(ChatBotUtils.stripHashtagFromChannel(this.channel), splitLine[1].toLowerCase(), "time");
                     if (userRank[0] != null) {
-                        sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
+                        sendChatMessage(((UserData)userRank[0]).getUser() + " is ranked " + userRank[1] + " with " +
                                 ChatBotUtils.millisToReadableFormat(((UserData) userRank[0]).getNumMillis()) + " in chat");
                     }
                 }
@@ -393,7 +393,7 @@ public class TwitchChatConnection {
                 } else {
                     Object[] userRank = fileIO.getUserRank(ChatBotUtils.stripHashtagFromChannel(this.channel), splitLine[1].toLowerCase(), "chat");
                     if (userRank[0] != null) {
-                        sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
+                        sendChatMessage(((UserData)userRank[0]).getUser() + " is ranked " + userRank[1] + " with " +
                                 String.valueOf(((UserData) userRank[0]).getChatCount()) + " messages in chat");
                     }
                 }
