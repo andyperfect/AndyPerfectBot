@@ -438,7 +438,9 @@ public class TwitchChatConnection {
         if (System.currentTimeMillis() - lastDbWriteTime >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
             fullUserDataList.updateAllUsers();
             fileIO.writeUserDataToDatabase(fullUserDataList);
-            fileIO.writeQuotesToDatabase(quotes);
+            if (config.isQuotesEnabled(this.channel)) {
+                fileIO.writeQuotesToDatabase(quotes);
+            }
             lastDbWriteTime = System.currentTimeMillis();
         }
     }
