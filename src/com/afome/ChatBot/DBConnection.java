@@ -27,6 +27,10 @@ public class DBConnection {
         return instance;
     }
 
+    public Connection getDBConnection() {
+        return conn;
+    }
+
     public boolean createChannel(String channel) {
         try {
             if (conn != null) {
@@ -56,15 +60,15 @@ public class DBConnection {
                 Statement statement = conn.createStatement();
                 statement.setQueryTimeout(10);
                 String queryString = String.format(
-                        "SELECT u.username, u.channel_id, u.timeconnected, u.chatcount " +
-                                "FROM user u " +
-                                "INNER JOIN channel c " +
-                                "ON u.channel_id = c.id " +
-                                "WHERE c.name = '%s';",
+                        "SELECT u.username, uc.channel_id, uc.time_connected, uc.chat_count " +
+                        "FROM user u " +
+                        "INNER JOIN user_channel uc ON u.id = uc.user_id " +
+                        "INNER JOIN channel c ON uc.channel_id = c.id " +
+                        "WHERE c.name = '%s'",
                         channel);
                 ResultSet rs = statement.executeQuery(queryString);
                 while (rs.next()) {
-                    returnList.add(new UserData(rs.getString("username"), rs.getLong("timeconnected"), rs.getInt("chatcount" )));
+                    returnList.add(new UserData(rs.getString("username"), rs.getLong("time_connected"), rs.getInt("chat_count" )));
                 }
             }
         } catch (SQLException e) {
@@ -81,17 +85,21 @@ public class DBConnection {
                 Statement statement = conn.createStatement();
                 statement.setQueryTimeout(10);
                 String queryString = String.format(
-                        "SELECT u.username, u.channel_id, u.timeconnected, u.chatcount " +
-                                "FROM user u " +
-                                "INNER JOIN channel c " +
-                                "ON u.channel_id = c.id " +
-                                "WHERE c.name = '%s' " +
-                                "AND u.username != '%s' " +
-                                "ORDER BY u.timeconnected DESC;",
+                        "SELECT u.username, uc.channel_id, uc.time_connected, uc.chat_count " +
+                        "FROM user u " +
+                        "INNER JOIN user_channel uc ON u.id = uc.user_id " +
+                        "INNER JOIN channel c ON uc.channel_id = c.id " +
+                        "WHERE c.name = '%s' " +
+                        "AND u.username != '%s' " +
+                        "ORDER BY uc.time_connected DESC;",
                         channel, botUsername);
                 ResultSet rs = statement.executeQuery(queryString);
                 while (rs.next()) {
-                    returnList.add(new UserData(rs.getString("username"), rs.getLong("timeconnected"), rs.getInt("chatcount" )));
+                    returnList.add(new UserData(
+                            rs.getString("username"),
+                            rs.getLong("time_connected"),
+                            rs.getInt("chat_count" ))
+                    );
                 }
             }
         } catch (SQLException e) {
@@ -108,17 +116,21 @@ public class DBConnection {
                 Statement statement = conn.createStatement();
                 statement.setQueryTimeout(10);
                 String queryString = String.format(
-                        "SELECT u.username, u.channel_id, u.timeconnected, u.chatcount " +
-                                "FROM user u " +
-                                "INNER JOIN channel c " +
-                                "ON u.channel_id = c.id " +
-                                "WHERE c.name = '%s' " +
-                                "AND u.username != '%s' " +
-                                "ORDER BY u.chatcount DESC;",
+                        "SELECT u.username, uc.channel_id, uc.time_connected, uc.chat_count " +
+                        "FROM user u " +
+                        "INNER JOIN user_channel uc ON u.id = uc.user_id " +
+                        "INNER JOIN channel c ON uc.channel_id = c.id " +
+                        "WHERE c.name = '%s' " +
+                        "AND u.username != '%s' " +
+                         "ORDER BY uc.chat_count DESC;",
                         channel, botUsername);
                 ResultSet rs = statement.executeQuery(queryString);
                 while (rs.next()) {
-                    returnList.add(new UserData(rs.getString("username"), rs.getLong("timeconnected"), rs.getInt("chatcount" )));
+                    returnList.add(new UserData(
+                            rs.getString("username"),
+                            rs.getLong("time_connected"),
+                            rs.getInt("chat_count" ))
+                    );
                 }
             }
         } catch (SQLException e) {
@@ -127,68 +139,41 @@ public class DBConnection {
         return returnList;
     }
 
-    public void getUserConnectionInfo(String username) {
-        try {
-            if (conn != null) {
-                Statement statement = conn.createStatement();
-                statement.setQueryTimeout(10);
-                String queryString = String.format(
-                        "SELECT u1.username, u1.timeconnected, u1.chatcount, " +
-                                "  (SELECT count(*) FROM user AS u2 WHERE u2.timeconnected > u1.timeconnected) AS userrank " +
-                                "FROM user as u1 WHERE u1.username='%s'; ",
-                        username);
-                System.out.println(queryString);
-                ResultSet rs = statement.executeQuery(queryString);
-                while (rs.next()) {
-                    System.out.println(rs.getString("username"));
-                    System.out.println(rs.getLong("timeconnected"));
-                    System.out.println(rs.getLong("chatcount"));
-                    System.out.println(rs.getLong("userrank") + 1);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void updateUserData(String username, long timeConnected, int chatCount, String channel) {
-        try {
-            if (conn != null) {
-                Statement statement = conn.createStatement();
-                statement.setQueryTimeout(10);
-                String queryString = String.format(
-                        "UPDATE user " +
-                        "SET timeconnected=%s,chatcount=%s " +
-                        "WHERE username='%s';",
-                        timeConnected, chatCount, username);
-                System.out.println(queryString);
-                statement.executeUpdate(queryString);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void batchUserUpdate(UserDataList dataList) {
         try {
             if (conn != null) {
                 conn.setAutoCommit(false);
                 String queryString =
-                        "INSERT OR REPLACE INTO user (id, channel_id, username, timeconnected, chatcount) " +
-                        "VALUES " +
-                        "( " +
-                        "(SELECT u.id FROM user u " +
-                        "INNER JOIN channel c ON u.channel_id = c.id " +
-                        "WHERE u.username = ? AND c.name = ?), " +
-                        "(SELECT id FROM channel WHERE name=?), ?, ?, ?);";
+                    "INSERT OR REPLACE INTO user (id, username) " +
+                    "VALUES ((SELECT u.id FROM USER u WHERE u.username = ?), ?);";
                 PreparedStatement pStatement = conn.prepareStatement(queryString);
                 for (UserData userData : dataList) {
                     pStatement.setString(1, userData.getUser());
+                    pStatement.setString(2, userData.getUser());
+                    pStatement.addBatch();
+                }
+                pStatement.executeBatch();
+                pStatement.close();
+
+                queryString =
+                    "INSERT OR REPLACE INTO user_channel (id, user_id, channel_id, time_connected, chat_count) " +
+                    "VALUES ( " +
+                    "   (SELECT uc.id FROM user_channel uc " +
+                    "       INNER JOIN user u ON u.id = uc.user_id " +
+                    "       INNER JOIN channel c ON c.id = uc.channel_id " +
+                    "       WHERE u.username = ? AND c.name=?), " +
+                    "   (SELECT u.id FROM user u WHERE u.username = ?), " +
+                    "   (SELECT c.id from channel c WHERE c.name = ?), " +
+                    "   ?, ? " +
+                    ");";
+                pStatement = conn.prepareStatement(queryString);
+                for (UserData userData : dataList) {
+                    pStatement.setString(1, userData.getUser());
                     pStatement.setString(2, dataList.getChannel());
-                    pStatement.setString(3, dataList.getChannel());
-                    pStatement.setString(4, userData.getUser());
+                    pStatement.setString(3, userData.getUser());
+                    pStatement.setString(4, dataList.getChannel());
                     pStatement.setLong(5, userData.getNumMillis());
-                    pStatement.setInt(6,  userData.getChatCount());
+                    pStatement.setInt(6, userData.getChatCount());
                     pStatement.addBatch();
                 }
                 pStatement.executeBatch();
