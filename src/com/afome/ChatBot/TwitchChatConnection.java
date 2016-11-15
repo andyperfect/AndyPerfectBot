@@ -34,17 +34,21 @@ public class TwitchChatConnection {
     }
 
     private void initialize() throws Exception {
-        Socket socket = new Socket(config.getServerName(), config.getPort(this.channel));
+        Socket socket = new Socket(
+                config.getServerName(),
+                config.getPort(this.channel)
+        );
+        System.out.println("1");
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         fileIO = new DataFileIO();
-        fileIO.writeChannelToDatabase(ChatBotUtils.stripHashtagFromChannel(channel));
-        fullUserDataList = fileIO.createUserDataFromDatabase(ChatBotUtils.stripHashtagFromChannel(channel));
+        fileIO.writeChannelToDatabase(channel);
+        fullUserDataList = fileIO.createUserDataFromDatabase(channel);
         fullUserDataList.assignModerators(config.getMods(this.channel));
-
+        System.out.println("2");
         if (config.isQuotesEnabled(this.channel)) {
-            quotes = fileIO.getChannelQuotes(ChatBotUtils.stripHashtagFromChannel(this.channel));
+            quotes = fileIO.getChannelQuotes(this.channel);
         }
 
         if (chatLog == null) {
@@ -55,11 +59,13 @@ public class TwitchChatConnection {
 
     public boolean connect() throws Exception {
 
+        System.out.println("INITIALIZING");
         initialize();
 
         if (connectToServer()) {
+            System.out.println("CONNECTING TO SERVER");
             // Join the channel
-            writer.write("JOIN " + channel + "\r\n");
+            writer.write("JOIN " + ChatBotUtils.addHashTagToChannel(channel) + "\r\n");
             writer.flush();
             System.out.println("LOG: JOINED CHANNEL " + channel);
 
@@ -68,7 +74,6 @@ public class TwitchChatConnection {
             lastDbWriteTime = initialConnectionTime;
 
             //sendChatMessage("Hi there! I'm just here to monitor for the time being. I'll lurk silently. I promise.");
-
             System.out.println("successfully connected to " + channel);
             connected = true;
             return true;
@@ -154,7 +159,7 @@ public class TwitchChatConnection {
     public void sendChatMessage(String message) {
         System.out.println("LOG: Sending message in channel " + this.channel + ":" + message);
         try {
-            writer.write("PRIVMSG " + this.channel + " :" + message + "\r\n");
+            writer.write("PRIVMSG " + ChatBotUtils.addHashTagToChannel(this.channel) + " :" + message + "\r\n");
             writer.flush();
         } catch (Exception e) {
             e.printStackTrace();
@@ -255,7 +260,7 @@ public class TwitchChatConnection {
                 int lastQuoteIndex = message.getMessage().lastIndexOf('"');
                 String quoteString = message.getMessage().substring(firstQuoteIndex + 1, lastQuoteIndex);
                 if (quoteString.length() > 1) {
-                    quotes.add(new Quote(quoteString, ChatBotUtils.stripHashtagFromChannel(this.channel),
+                    quotes.add(new Quote(quoteString, this.channel,
                                     userData.getUser().toLowerCase(), false));
                             sendChatMessage("Added quote \"" + quoteString + "\"");
                 } else {
@@ -319,7 +324,7 @@ public class TwitchChatConnection {
         System.out.println("hp request valid");
         if (splitLine.length == 1) {
             // User is requesting data for themselves
-            Object[] userRank = fileIO.getUserRank(ChatBotUtils.stripHashtagFromChannel(this.channel), userData.getUser(), "time");
+            Object[] userRank = fileIO.getUserRank(this.channel, userData.getUser(), "time");
             if (userRank[0] != null) {
                 sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
                         ChatBotUtils.millisToReadableFormat(((UserData)userRank[0]).getNumMillis()) + " in chat");
@@ -330,7 +335,7 @@ public class TwitchChatConnection {
                 try {
                     String number = splitLine[1].substring(1, splitLine[1].length());
                     int rankToFind = Integer.parseInt(number);
-                    UserData userAtRank = fileIO.getUserAtTimeRank(ChatBotUtils.stripHashtagFromChannel(this.channel), rankToFind);
+                    UserData userAtRank = fileIO.getUserAtTimeRank(this.channel, rankToFind);
                     if (userAtRank != null) {
                         sendChatMessage("Rank " + String.valueOf(rankToFind) + ": " + userAtRank.getUser() + " has " +
                                 ChatBotUtils.millisToReadableFormat(userAtRank.getNumMillis()) + " in chat");
@@ -343,7 +348,7 @@ public class TwitchChatConnection {
                 if (splitLine[1].toLowerCase().equals(config.getNick())) {
                     sendChatMessage("I have no data");
                 } else {
-                    Object[] userRank = fileIO.getUserRank(ChatBotUtils.stripHashtagFromChannel(this.channel), splitLine[1].toLowerCase(), "time");
+                    Object[] userRank = fileIO.getUserRank(this.channel, splitLine[1].toLowerCase(), "time");
                     if (userRank[0] != null) {
                         sendChatMessage(((UserData)userRank[0]).getUser() + " is ranked " + userRank[1] + " with " +
                                 ChatBotUtils.millisToReadableFormat(((UserData) userRank[0]).getNumMillis()) + " in chat");
@@ -367,7 +372,7 @@ public class TwitchChatConnection {
         }
         if (splitLine.length == 1) {
             // User is requesting data for themselves
-            Object[] userRank = fileIO.getUserRank(ChatBotUtils.stripHashtagFromChannel(this.channel), userData.getUser(), "chat");
+            Object[] userRank = fileIO.getUserRank(this.channel, userData.getUser(), "chat");
             if (userRank[0] != null) {
                 sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
                         String.valueOf(((UserData) userRank[0]).getChatCount()) + " messages in chat");
@@ -378,7 +383,7 @@ public class TwitchChatConnection {
                 try {
                     String number = splitLine[1].substring(1, splitLine[1].length());
                     int rankToFind = Integer.parseInt(number);
-                    UserData userAtRank = fileIO.getUserAtChatRank(ChatBotUtils.stripHashtagFromChannel(this.channel), rankToFind);
+                    UserData userAtRank = fileIO.getUserAtChatRank(this.channel, rankToFind);
                     if (userAtRank != null) {
                         sendChatMessage("Rank " + String.valueOf(rankToFind) + ": " + userAtRank.getUser() + " has " +
                                 userAtRank.getChatCount() + " messages in chat");
@@ -391,7 +396,7 @@ public class TwitchChatConnection {
                 if (splitLine[1].toLowerCase().equals(config.getNick())) {
                     sendChatMessage("I have no data");
                 } else {
-                    Object[] userRank = fileIO.getUserRank(ChatBotUtils.stripHashtagFromChannel(this.channel), splitLine[1].toLowerCase(), "chat");
+                    Object[] userRank = fileIO.getUserRank(this.channel, splitLine[1].toLowerCase(), "chat");
                     if (userRank[0] != null) {
                         sendChatMessage(((UserData)userRank[0]).getUser() + " is ranked " + userRank[1] + " with " +
                                 String.valueOf(((UserData) userRank[0]).getChatCount()) + " messages in chat");
@@ -428,8 +433,7 @@ public class TwitchChatConnection {
     public void iteration() {
         if (System.currentTimeMillis() - lastTwitchUserQueryTime >= ChatBotUtils.FIVE_MINUTES_IN_MILLIS) {
             //Query Twitch for users in chat and update user list accordingly
-            ArrayList<String> usersInChat = TwitchUtils.getUsersInChat(
-                    ChatBotUtils.stripHashtagFromChannel(this.channel));
+            ArrayList<String> usersInChat = TwitchUtils.getUsersInChat(this.channel);
             if (usersInChat != null) {
                 fullUserDataList.handleCurrentChatters(usersInChat);
             }

@@ -88,4 +88,7 @@ public class ChatBotUtils {
     public static String stripHashtagFromChannel(String channel) {
         return channel.replace("#", "");
     }
+    public static String addHashTagToChannel(String channel) {
+        return "#" + channel;
+    }
 }

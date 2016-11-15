@@ -108,7 +108,7 @@ public class ChatBot implements Runnable {
     private void checkChannelStatuses() {
         for (TwitchChatConnection connection : chatConnections) {
             previousChannelStatuses.put(connection.getChannel(), channelStatuses.get(connection.getChannel()));
-            if (TwitchUtils.isChannelLive(ChatBotUtils.stripHashtagFromChannel(connection.getChannel()))) {
+            if (TwitchUtils.isChannelLive(connection.getChannel())) {
                 channelStatuses.put(connection.getChannel(), true);
             } else {
                 channelStatuses.put(connection.getChannel(), false);

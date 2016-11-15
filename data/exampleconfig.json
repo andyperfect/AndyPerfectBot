@@ -5,7 +5,7 @@
   "client_id": "twitch_developer_client_id",
   "channels": [
     {
-      "channel": "#channel1",
+      "channel": "channel1",
       "port": 6667,
       "enabled": 1,
       "users": {
@@ -21,7 +21,7 @@
       "enable_bot_commands":0
     },
     {
-      "channel": "#channel2",
+      "channel": "channel2",
       "port": 6667,
       "enabled": 0,
       "users": {
