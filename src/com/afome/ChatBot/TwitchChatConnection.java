@@ -111,6 +111,7 @@ public class TwitchChatConnection {
     public void terminateConnection() {
         fullUserDataList.updateAllUsers();
         fileIO.writeUserDataToDatabase(fullUserDataList);
+        fileIO.writeChatMessagesToDatabase(this.chatLog);
         if (config.isQuotesEnabled(this.channel)) {
             fileIO.writeQuotesToDatabase(quotes);
         }
@@ -442,6 +443,7 @@ public class TwitchChatConnection {
         if (System.currentTimeMillis() - lastDbWriteTime >= ChatBotUtils.TEN_MINUTES_IN_MILLIS) {
             fullUserDataList.updateAllUsers();
             fileIO.writeUserDataToDatabase(fullUserDataList);
+            fileIO.writeChatMessagesToDatabase(this.chatLog);
             if (config.isQuotesEnabled(this.channel)) {
                 fileIO.writeQuotesToDatabase(quotes);
             }

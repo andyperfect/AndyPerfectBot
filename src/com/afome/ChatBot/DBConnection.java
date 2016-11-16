@@ -241,4 +241,41 @@ public class DBConnection {
         }
         return false;
     }
+
+    public boolean writeChatMessagesToDatabase(ArrayList<ChatMessage> chatMessages) {
+        try {
+            if (conn != null) {
+                conn.setAutoCommit(false);
+                String queryString =
+                        "INSERT INTO chat_message (user_channel_id, message, date) " +
+                        "VALUES ( " +
+                        "   ( " +
+                        "       SELECT uc.id FROM user_channel uc " +
+                        "       INNER JOIN user u on uc.user_id = u.id " +
+                        "       INNER JOIN channel c on uc.channel_id = c.id " +
+                        "       WHERE u.username=? " +
+                        "       AND c.name =? " +
+                        "   ), ?, ? " +
+                        ")";
+                PreparedStatement pStatement = conn.prepareStatement(queryString);
+                for (ChatMessage chatMessage : chatMessages) {
+                    if (!chatMessage.doesExistInDatabase()) {
+                        pStatement.setString(1, chatMessage.getUser());
+                        pStatement.setString(2, chatMessage.getChannel());
+                        pStatement.setString(3, chatMessage.getMessage());
+                        pStatement.setLong(4, chatMessage.getMessageMillis());
+                        pStatement.addBatch();
+                    }
+                }
+                pStatement.executeBatch();
+                pStatement.close();
+                conn.commit();
+                conn.setAutoCommit(true);
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

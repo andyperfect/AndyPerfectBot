@@ -101,4 +101,13 @@ public class DataFileIO {
             }
         }
     }
+
+    public void writeChatMessagesToDatabase(ArrayList<ChatMessage> chatMessages) {
+        boolean success = db.writeChatMessagesToDatabase(chatMessages);
+        if (success) {
+            for (ChatMessage chatMessage : chatMessages) {
+                chatMessage.setExistsInDatabase(true);
+            }
+        }
+    }
 }

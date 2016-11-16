@@ -9,6 +9,7 @@ public class ChatMessage {
     private String message = "";
     private long messageMillis = -1;
     private String[] userList = null;
+    private boolean existsInDatabase = false;
 
 
     public ChatMessage(String line) {
@@ -56,7 +57,7 @@ public class ChatMessage {
         user = parseUser(line);
         int channelIndex = line.indexOf("PRIVMSG") + 8;
         int channelEndIndex = line.indexOf(' ', channelIndex);
-        channel = line.substring(channelIndex, channelEndIndex);
+        channel = ChatBotUtils.stripHashtagFromChannel(line.substring(channelIndex, channelEndIndex));
         int messageIndex = line.indexOf(':', channelIndex) + 1;
         message = line.substring(messageIndex);
     }
@@ -105,6 +106,14 @@ public class ChatMessage {
 
     public String[] getUserList() {
         return userList;
+    }
+
+    public boolean doesExistInDatabase() {
+        return existsInDatabase;
+    }
+
+    public void setExistsInDatabase(boolean existsInDatabase) {
+        this.existsInDatabase = existsInDatabase;
     }
 
     public String toString() {
