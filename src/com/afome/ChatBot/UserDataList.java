@@ -1,5 +1,7 @@
 package com.afome.ChatBot;
 
+import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +39,14 @@ public class UserDataList extends ArrayList<UserData> {
                 if (mod.equalsIgnoreCase(userData.getUser())) {
                     userData.setUserType(UserType.MODERATOR);
                 }
+            }
+        }
+    }
+
+    public void assignOP(String op) {
+        for (UserData userData : this) {
+            if (op.equalsIgnoreCase(userData.getUser())) {
+                userData.setUserType(UserType.OPERATOR);
             }
         }
     }

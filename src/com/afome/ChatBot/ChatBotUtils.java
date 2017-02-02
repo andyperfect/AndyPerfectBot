@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 public class ChatBotUtils {
 
@@ -83,6 +84,19 @@ public class ChatBotUtils {
         Pattern pattern = Pattern.compile(URLRegex);
         Matcher m = pattern.matcher(input);
         return m.find();
+    }
+
+    public static String rollValue(HashMap<String, Double> map) {
+        double rolledValue = random.nextDouble();
+
+        double curLimit = 0.0;
+        for (String key : map.keySet()) {
+            curLimit += map.get(key);
+            if (rolledValue <= curLimit) {
+                return key;
+            }
+        }
+        return null;
     }
 
     public static String stripHashtagFromChannel(String channel) {
