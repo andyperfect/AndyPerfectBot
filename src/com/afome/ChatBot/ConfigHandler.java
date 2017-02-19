@@ -53,6 +53,7 @@ public class ConfigHandler {
             channelConfig.put("enable_quotes", curChannelJson.getInt("enable_quotes") == 1);
             channelConfig.put("enable_roulette", curChannelJson.getInt("enable_roulette") == 1);
             channelConfig.put("enable_bot_commands", curChannelJson.getInt("enable_bot_commands") == 1);
+            channelConfig.put("enable_wov_command", curChannelJson.getInt("enable_wov_command") == 1);
 
             JSONObject users = curChannelJson.getJSONObject("users");
             channelConfig.put("op", users.getString("op"));
@@ -126,6 +127,10 @@ public class ConfigHandler {
 
     public boolean isBotCommandsEnabled(String channel) {
         return (Boolean) channelConfigs.get(channel).get("enable_bot_commands");
+    }
+
+    public boolean isWovCommandEnabled(String channel) {
+        return (Boolean) channelConfigs.get(channel).get("enable_wov_command");
     }
 
     public boolean isChannelEnabled(String channel) {

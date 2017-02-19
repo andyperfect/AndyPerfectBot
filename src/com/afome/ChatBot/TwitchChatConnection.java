@@ -1,6 +1,7 @@
 package com.afome.ChatBot;
 
 import com.afome.APBotMain;
+import com.afome.ChatBot.commands.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -28,6 +29,8 @@ public class TwitchChatConnection {
 
     private boolean connected = false;
 
+    private ArrayList<Command> commands;
+
     public TwitchChatConnection(String channel) throws Exception {
         this.channel = channel;
         config = ConfigHandler.getInstance();
@@ -38,7 +41,6 @@ public class TwitchChatConnection {
                 config.getServerName(),
                 config.getPort(this.channel)
         );
-        System.out.println("1");
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -47,13 +49,30 @@ public class TwitchChatConnection {
         fullUserDataList = fileIO.createUserDataFromDatabase(channel);
         fullUserDataList.assignModerators(config.getMods(this.channel));
         fullUserDataList.assignOP(config.getOp(this.channel));
-        System.out.println("2");
         if (config.isQuotesEnabled(this.channel)) {
             quotes = fileIO.getChannelQuotes(this.channel);
         }
 
         if (chatLog == null) {
             chatLog = new ArrayList<ChatMessage>();
+        }
+        commands = new ArrayList<Command>();
+
+        if (config.isBotCommandsEnabled(channel)) {
+            commands.add(new CommandUptime());
+            if (config.isUserTrackingCommandsEnabled(channel)) {
+                commands.add(new CommandHP());
+                commands.add(new CommandPP());
+            }
+            if (config.isQuotesEnabled(channel)) {
+                commands.add(new CommandQuote());
+            }
+            if (config.isRouletteEnabled(channel)) {
+                commands.add(new CommandRoulette());
+            }
+            if (config.isWovCommandEnabled(channel)) {
+                commands.add(new CommandWOVRandomizer());
+            }
         }
     }
 
@@ -83,8 +102,6 @@ public class TwitchChatConnection {
             connected = false;
             return false;
         }
-
-
     }
 
     private boolean connectToServer() throws IOException {
@@ -225,285 +242,10 @@ public class TwitchChatConnection {
             return;
         }
 
-        //USER COMMANDS
-        if (message.getMessage().startsWith("!hp")) {
-            userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
-            handleHPCommand(message, userData);
-        }
-
-        if (message.getMessage().startsWith("!pp")) {
-            userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
-            handlePPCommand(message, userData);
-        }
-
-        //Only users with that have been in chat for the configured time are allowed to use this option (And mods)
-        if (message.getMessage().startsWith("!quote") && config.isQuotesEnabled(this.channel) &&
-                (userData.getNumMillis() > config.getTimeNeededToQuote(this.channel) ||
-                        userData.getUserType() == UserType.MODERATOR)) {
-            userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
-            String[] splitLine = message.getMessage().split("\\s+");
-            if (splitLine.length == 1) {
-                Quote quote = getRandomQuote();
-                if (quote == null) {
-                    sendChatMessage("There are no quotes available");
-                } else {
-                    sendChatMessage("\"" + quote.getQuote() + "\" (" +
-                            ChatBotUtils.epochToDateString(quote.getTimeInMillis()) + ")");
-                }
-            } else if (splitLine.length >= 3 &&
-                    splitLine[1].equalsIgnoreCase("add") &&
-                    splitLine[2].startsWith("\"") &&
-                    splitLine[splitLine.length - 1].endsWith("\"")) {
-                //If There are at least 3 tokens, the first one is "!quote", the second one is "add",
-                //the third one starts with a quote and the last one ends with a quote, we're good
-                //Example: !quote add "this is a valid quote"
-
-                int firstQuoteIndex = message.getMessage().indexOf('"');
-                int lastQuoteIndex = message.getMessage().lastIndexOf('"');
-                String quoteString = message.getMessage().substring(firstQuoteIndex + 1, lastQuoteIndex);
-                if (quoteString.length() > 1) {
-                    quotes.add(new Quote(quoteString, this.channel,
-                                    userData.getUser().toLowerCase(), false));
-                            sendChatMessage("Added quote \"" + quoteString + "\"");
-                } else {
-                    sendChatMessage("Invalid quote length");
-                }
-            }
-        }
-
-        if (message.getMessage().equals("!uptime")) {
-            userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
-            long curTime = System.currentTimeMillis();
-            sendChatMessage("The stream has been up for " + ChatBotUtils.millisToReadableFormat(curTime - initialConnectionTime));
-        }
-
-        if (message.getMessage().equals("!roulette") && config.isRouletteEnabled(this.channel)) {
-            userData.handleBotCommand(config.getTimeBetweenUserCommands(this.channel));
-            // Gets a random number from 1 - 128
-            int rolledValue = ChatBotUtils.random.nextInt(128) + 1;
-            String responseMessage = message.getUser() + " rolled a " + String.valueOf(rolledValue) + ". ";
-            if (rolledValue == 128) {
-
-                responseMessage += "A Gutsy Bat. A bomb drop. A timeout. RIP";
-                if (userData.getUserType().equals(UserType.MODERATOR)) {
-                    responseMessage += " ... @AndyPerfect, Timeout this guy. This mod's gotta go and I can't do it.";
-                } else if (userData.getUserType().equals(UserType.USER)) {
-                    sendChatMessage("/timeout " + message.getUser() + " 120");
-                }
-            } else if (rolledValue > 120) {
-                responseMessage += "Mighty close. You're safe for now";
-            } else if (rolledValue > 100) {
-                responseMessage += "A high roll, but you're safe.";
-            } else if (rolledValue > 80) {
-                responseMessage += "On the high side, but you're safe.";
-            } else if (rolledValue > 60) {
-                responseMessage += "You really are quite average.";
-            } else if (rolledValue > 40) {
-                responseMessage += "Below average. That's ok in this case";
-            } else if (rolledValue > 20) {
-                responseMessage += "Impressively low. Nowhere near that bomb drop";
-            } else if (rolledValue >= 2) {
-                responseMessage += "You'd be close if the numbers wrapped. But they don't. So you're not close";
-            } else {
-                responseMessage += "You literally could not have been further from the 1/128 roll. Congratulations.";
-            }
-            sendChatMessage(responseMessage);
-        }
-
-        if (message.getMessage().equals("!wov-randomizer") && userData.getUserType() == UserType.OPERATOR) {
-            handleWOVRandomizerCommand();
-        }
-    }
-
-    public void handleWOVRandomizerCommand() {
-        String outputMessage = "";
-        HashMap<String, Double> gameModes = new HashMap<String, Double>();
-        gameModes.put("Mortal", 0.3);
-        gameModes.put("Demon", 0.3);
-        gameModes.put("Doomed Mortal", 0.2);
-        gameModes.put("Doomed Demon", 0.2);
-
-        HashMap<String, Double> areas = new HashMap<String, Double>();
-        areas.put("Floating Keep 1", 1.0);
-        areas.put("Myougi 1", 1.0);
-        areas.put("Floating Keep 2", 1.0);
-        areas.put("Prgora", 1.0);
-        areas.put("Vale 1", 1.0);
-        areas.put("Electram", 1.0);
-        areas.put("Vale 2", 1.0);
-        areas.put("Amythyst", 1.0);
-        areas.put("Grotto 1", 1.0);
-        areas.put("Dark Annihlator", 1.0);
-        areas.put("Grotto 2", 1.0);
-        areas.put("Terravine", 1.0);
-        areas.put("Underworld 1", 1.0);
-        areas.put("Kraterac", 1.0);
-        areas.put("Underworld 2", 1.0);
-        areas.put("Ancient Constructs", 1.0);
-        areas.put("Library", 1.0);
-        areas.put("Myougi 2", 1.0);
-        areas.put("Chambers", 1.0);
-        areas.put("Twin Orcs", 1.0);
-        areas.put("Path of Decay", 1.0);
-        areas.put("Azurel", 1.0);
-        areas.put("Heart of the Baneful", 1.0);
-        areas.put("Jehoul 1", 1.0);
-        areas.put("Jehoul 2", 1.0);
-        areas.put("Boss Rush", 1.0);
-
-        for (String key : areas.keySet()) {
-            areas.put(key, 1.0/areas.size());
-        }
-
-        HashMap<String, Double> stipulations = new HashMap<String, Double>();
-        stipulations.put("1 Death", 1.0);
-        stipulations.put("3 Deaths", 1.0);
-        stipulations.put("5 Deaths", 1.0);
-        stipulations.put("10 Deaths", 1.0);
-        stipulations.put("15 Deaths", 1.0);
-        stipulations.put("3 Minutes", 1.0);
-        stipulations.put("5 Minutes", 1.0);
-        stipulations.put("7 Minutes", 1.0);
-        stipulations.put("10 Minutes", 1.0);
-        stipulations.put("15 Minutes", 1.0);
-
-        for (String key : stipulations.keySet()) {
-            stipulations.put(key, 1.0 / stipulations.size());
-        }
-
-        HashMap<String, Double> weapons = new HashMap<String, Double>();
-        weapons.put("Purified", 1.0);
-        weapons.put("Turbo", 1.0);
-        weapons.put("Gluttony", 1.0);
-        weapons.put("Wrath", 1.0);
-        weapons.put("Lust", 1.0);
-        weapons.put("Pride", 1.0);
-        weapons.put("Envy", 1.0);
-        weapons.put("Greed", 1.0);
-        weapons.put("Sloth", 1.0);
-        weapons.put("PB", 1.0);
-
-        for (String key : weapons.keySet()) {
-            weapons.put(key, 1.0 / weapons.size());
-        }
-
-        HashMap<String, Double> hellspawn = new HashMap<String, Double>();
-        hellspawn.put("enabled", 0.01);
-        hellspawn.put("disabled", 0.99);
-
-        HashMap<String, Double> sevenSins = new HashMap<String, Double>();
-        sevenSins.put("enabled", 0.01);
-        sevenSins.put("disabled", 0.99);
-
-        if (ChatBotUtils.rollValue(sevenSins).equals("enabled")) {
-            String difficulty = ChatBotUtils.rollValue(gameModes);
-            outputMessage = "Seven Sins | " + difficulty;
-        } else if (ChatBotUtils.rollValue(hellspawn).equals("enabled")) {
-            String difficulty = ChatBotUtils.rollValue(gameModes);
-            outputMessage = "Hellspawn | " + difficulty;
-        } else {
-            String gameMode = ChatBotUtils.rollValue(gameModes);
-            String area = ChatBotUtils.rollValue(areas);
-            String weapon = ChatBotUtils.rollValue(weapons);
-            String stipulation = ChatBotUtils.rollValue(stipulations);
-            outputMessage = gameMode + " | " + area + " | " + weapon + " | " + stipulation;
-        }
-        sendChatMessage(outputMessage);
-    }
-
-    public void handleHPCommand(ChatMessage message, UserData userData) {
-        if (!config.isUserTrackingCommandsEnabled(this.channel)) {
-            return;
-        }
-        if (message == null || userData == null) {
-            return;
-        }
-        String[] splitLine = message.getMessage().split("\\s+");
-
-        if (!splitLine[0].equals("!hp")) {
-            return;
-        }
-        System.out.println("hp request valid");
-        if (splitLine.length == 1) {
-            // User is requesting data for themselves
-            Object[] userRank = fileIO.getUserRank(this.channel, userData.getUser(), "time");
-            if (userRank[0] != null) {
-                sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
-                        ChatBotUtils.millisToReadableFormat(((UserData)userRank[0]).getNumMillis()) + " in chat");
-            }
-        } else if (splitLine.length == 2) {
-            if (splitLine[1].startsWith("#")) {
-                // User is requesting data for a user at a given rank
-                try {
-                    String number = splitLine[1].substring(1, splitLine[1].length());
-                    int rankToFind = Integer.parseInt(number);
-                    UserData userAtRank = fileIO.getUserAtTimeRank(this.channel, rankToFind);
-                    if (userAtRank != null) {
-                        sendChatMessage("Rank " + String.valueOf(rankToFind) + ": " + userAtRank.getUser() + " has " +
-                                ChatBotUtils.millisToReadableFormat(userAtRank.getNumMillis()) + " in chat");
-                    }
-                } catch (Exception e) {
-                    // Ignore
-                }
-            } else {
-                // USer is requesting data for another user
-                if (splitLine[1].toLowerCase().equals(config.getNick())) {
-                    sendChatMessage("I have no data");
-                } else {
-                    Object[] userRank = fileIO.getUserRank(this.channel, splitLine[1].toLowerCase(), "time");
-                    if (userRank[0] != null) {
-                        sendChatMessage(((UserData)userRank[0]).getUser() + " is ranked " + userRank[1] + " with " +
-                                ChatBotUtils.millisToReadableFormat(((UserData) userRank[0]).getNumMillis()) + " in chat");
-                    }
-                }
-            }
-        }
-    }
-
-    public void handlePPCommand(ChatMessage message, UserData userData) {
-        if (!config.isUserTrackingCommandsEnabled(this.channel)) {
-            return;
-        }
-        if (message == null || userData == null) {
-            return;
-        }
-        String[] splitLine = message.getMessage().split("\\s+");
-
-        if (!splitLine[0].equals("!pp")) {
-            return;
-        }
-        if (splitLine.length == 1) {
-            // User is requesting data for themselves
-            Object[] userRank = fileIO.getUserRank(this.channel, userData.getUser(), "chat");
-            if (userRank[0] != null) {
-                sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
-                        String.valueOf(((UserData) userRank[0]).getChatCount()) + " messages in chat");
-            }
-        } else if (splitLine.length == 2) {
-            if (splitLine[1].startsWith("#")) {
-                // User is requesting data for a user at a given rank
-                try {
-                    String number = splitLine[1].substring(1, splitLine[1].length());
-                    int rankToFind = Integer.parseInt(number);
-                    UserData userAtRank = fileIO.getUserAtChatRank(this.channel, rankToFind);
-                    if (userAtRank != null) {
-                        sendChatMessage("Rank " + String.valueOf(rankToFind) + ": " + userAtRank.getUser() + " has " +
-                                userAtRank.getChatCount() + " messages in chat");
-                    }
-                } catch (Exception e) {
-                    //Ignore
-                }
-            } else {
-                // USer is requesting data for another user
-                if (splitLine[1].toLowerCase().equals(config.getNick())) {
-                    sendChatMessage("I have no data");
-                } else {
-                    Object[] userRank = fileIO.getUserRank(this.channel, splitLine[1].toLowerCase(), "chat");
-                    if (userRank[0] != null) {
-                        sendChatMessage(((UserData)userRank[0]).getUser() + " is ranked " + userRank[1] + " with " +
-                                String.valueOf(((UserData) userRank[0]).getChatCount()) + " messages in chat");
-                    }
-                }
+        for (Command command : commands) {
+            if (command.isCommand(message) && command.canUseCommand(userData, this)) {
+                userData.handleBotCommand(config.getTimeBetweenUserCommands(channel));
+                command.executeCommand(message, userData, this);
             }
         }
     }
@@ -558,5 +300,17 @@ public class TwitchChatConnection {
 
     public String getChannel() {
         return this.channel;
+    }
+
+    public DataFileIO getFileIO() {
+        return this.fileIO;
+    }
+
+    public long getInitialConnectionTime() {
+        return this.initialConnectionTime;
+    }
+
+    public ArrayList<Quote> getQuotes() {
+        return quotes;
     }
 }
