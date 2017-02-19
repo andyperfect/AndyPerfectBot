@@ -24,6 +24,7 @@ public class TwitchUtils {
             URL url = new URL("http://tmi.twitch.tv/group/user/" + channel + "/chatters");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestProperty("Client-ID", config.getClientId());
+            con.setRequestProperty("Accept", "application/vnd.twitchtv.v5+json");
             con.setConnectTimeout(5000);
             con.setRequestMethod("GET");
 
