@@ -79,26 +79,26 @@ public class TwitchChatConnection {
 
     public boolean connect() throws Exception {
 
-        System.out.println("INITIALIZING");
+        log.info("INITIALIZING channel:" + channel);
         initialize();
 
         if (connectToServer()) {
-            System.out.println("CONNECTING TO SERVER");
+            log.info("CONNECTING TO SERVER:" + channel);
             // Join the channel
             writer.write("JOIN " + ChatBotUtils.addHashTagToChannel(channel) + "\r\n");
             writer.flush();
-            System.out.println("LOG: JOINED CHANNEL " + channel);
+            log.info("JOINED CHANNEL:" + channel);
 
             initialConnectionTime = System.currentTimeMillis();
             lastTwitchUserQueryTime = System.currentTimeMillis() - ChatBotUtils.ONE_MINUTE_IN_MILLIS;
             lastDbWriteTime = initialConnectionTime;
 
             //sendChatMessage("Hi there! I'm just here to monitor for the time being. I'll lurk silently. I promise.");
-            System.out.println("successfully connected to " + channel);
+            log.info("successfully connected:" + channel);
             connected = true;
             return true;
         } else {
-            System.out.println("Failed to connect to " + channel);
+            log.warning("Failed to connect:" + channel);
             connected = false;
             return false;
         }
@@ -113,13 +113,13 @@ public class TwitchChatConnection {
         String line;
 
         while ((line = reader.readLine( )) != null) {
-            System.out.println("CONNECTING:"+ line);
+            log.info("CONNECTING:"+ line);
             if (line.contains("004")) {
-                System.out.println("Logged in");
+                log.info("Logged in");
                 return true;
             }
             else if (line.contains("433")) {
-                System.out.println("Nickname is already in use.");
+                log.warning("Nickname is already in use.");
                 return false;
             }
         }
@@ -176,7 +176,7 @@ public class TwitchChatConnection {
     }
 
     public void sendChatMessage(String message) {
-        System.out.println("LOG: Sending message in channel " + this.channel + ":" + message);
+        log.info("Sending message in channel " + this.channel + ":" + message);
         try {
             writer.write("PRIVMSG " + ChatBotUtils.addHashTagToChannel(this.channel) + " :" + message + "\r\n");
             writer.flush();

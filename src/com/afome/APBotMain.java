@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+import java.util.logging.LogManager;
 import java.util.logging.SimpleFormatter;
 
 public class APBotMain extends Application{
@@ -49,14 +50,15 @@ public class APBotMain extends Application{
     public static void initializeLogger() {
         FileHandler fh;
         try {
+            log.setUseParentHandlers(false);
             fh = new FileHandler("data" + File.separator + "ChatBot.log", true);
             log.addHandler(fh);
             SimpleFormatter formatter = new SimpleFormatter();
             fh.setFormatter(formatter);
         } catch (SecurityException e) {
-            e.printStackTrace();
+            log.severe(e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.severe(e.getMessage());
         }
     }
 

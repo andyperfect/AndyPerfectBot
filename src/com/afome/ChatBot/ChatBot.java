@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.Handler;
 
 public class ChatBot implements Runnable {
     private static final Logger log = Logger.getLogger(APBotMain.class.getName());
@@ -46,12 +47,13 @@ public class ChatBot implements Runnable {
             // MAIN LOOP
             boolean channelCurrentlyOn = false;
             while (running) {
+                flushLogs();
                 channelCurrentlyOn = false;
                 for (TwitchChatConnection connection : chatConnections) {
                     // Stream just turned on
                     if (!previousChannelStatuses.get(connection.getChannel()) &&
                             channelStatuses.get(connection.getChannel())) {
-                        System.out.println("Stream " + connection.getChannel() + " turned on. Connecting...");
+                        log.info("Stream " + connection.getChannel() + " turned on. Connecting...");
                         previousChannelStatuses.put(connection.getChannel(), true);
                         connection.connect();
 
@@ -59,7 +61,7 @@ public class ChatBot implements Runnable {
                     // Stream just turned off
                     if (previousChannelStatuses.get(connection.getChannel()) &&
                             !channelStatuses.get(connection.getChannel())) {
-                        System.out.println("Stream " + connection.getChannel() + " turned off. Disconnecting...");
+                        log.info("Stream " + connection.getChannel() + " turned off. Disconnecting...");
                         previousChannelStatuses.put(connection.getChannel(), false);
                         connection.terminateConnection();
                     }
@@ -88,7 +90,7 @@ public class ChatBot implements Runnable {
             }
 
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            log.severe("Error: " + e.getMessage());
         }
         log.log(Level.INFO, "Terminating bot");
     }
@@ -128,5 +130,11 @@ public class ChatBot implements Runnable {
 
     public ArrayList<TwitchChatConnection> getChatConnections() {
         return chatConnections;
+    }
+
+    public void flushLogs() {
+        for (Handler handler : log.getHandlers()) {
+            handler.flush();
+        }
     }
 }

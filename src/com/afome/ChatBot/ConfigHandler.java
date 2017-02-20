@@ -1,5 +1,6 @@
 package com.afome.ChatBot;
 
+import com.afome.APBotMain;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -10,9 +11,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 @SuppressWarnings("unchecked")
 public class ConfigHandler {
+    private static final Logger log = Logger.getLogger(APBotMain.class.getName());
     private static ConfigHandler instance = null;
     private HashMap<String, HashMap<String, Object>> channelConfigs;
 
@@ -29,7 +32,7 @@ public class ConfigHandler {
     }
 
     private ConfigHandler() throws IOException {
-        System.out.println("Beginning config read");
+        log.info("Beginning config read");
         channelConfigs = new HashMap<String, HashMap<String, Object>>();
 
         String configContent = new String(Files.readAllBytes(Paths.get("data" + File.separator + "config.json")));
@@ -66,7 +69,7 @@ public class ConfigHandler {
             channelConfig.put("mods", channelMods);
             channelConfigs.put(curChannelJson.getString("channel"), channelConfig);
         }
-        System.out.println("Ending config read");
+        log.info("Ending config read");
     }
 
     public String getServerName() {

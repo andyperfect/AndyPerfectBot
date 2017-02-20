@@ -1,12 +1,14 @@
 package com.afome.ChatBot;
 
-import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion;
+import com.afome.APBotMain;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 public class UserDataList extends ArrayList<UserData> {
+    private static final Logger log = Logger.getLogger(APBotMain.class.getName());
 
     private String channel;
 
@@ -29,7 +31,7 @@ public class UserDataList extends ArrayList<UserData> {
     public UserData createNewUser(String username) {
         UserData newUser = new UserData(username, 0);
         add(newUser);
-        System.out.println("Adding " + username + " to user list");
+        log.info("Adding " + username + " to user list in channel " + channel);
         return newUser;
     }
 

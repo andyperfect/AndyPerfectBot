@@ -72,10 +72,7 @@ public class DataFileIO {
         }
         int rank = 1;
         for (UserData user : users) {
-            System.out.println(user.getUser());
-            System.out.println(username);
             if (user.getUser().equalsIgnoreCase(username)) {
-                System.out.println("FOUND");
                 returnArray[0] = user;
                 returnArray[1] = rank;
                 return returnArray;

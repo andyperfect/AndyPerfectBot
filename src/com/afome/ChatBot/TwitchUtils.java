@@ -34,7 +34,7 @@ public class TwitchUtils {
             while (null != (tmp = br.readLine())) {
                 responseBuilder.append(tmp);
             }
-            System.out.println(responseBuilder.toString());
+            log.info("Twitch getUsersInChat response: " + responseBuilder.toString());
             JSONObject fullJson = new JSONObject(responseBuilder.toString());
             JSONObject chattersJson;
             if (fullJson.has("chatters")) {
