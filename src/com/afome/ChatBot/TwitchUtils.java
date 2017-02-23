@@ -34,7 +34,6 @@ public class TwitchUtils {
             while (null != (tmp = br.readLine())) {
                 responseBuilder.append(tmp);
             }
-            log.info("Twitch getUsersInChat response: " + responseBuilder.toString());
             JSONObject fullJson = new JSONObject(responseBuilder.toString());
             JSONObject chattersJson;
             if (fullJson.has("chatters")) {
@@ -66,7 +65,7 @@ public class TwitchUtils {
             URL url = new URL("https://api.twitch.tv/kraken/streams/" + channel);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestProperty("Client-ID", config.getClientId());
-            con.setRequestProperty("Accept", "application/vnd.twitchtv.v5+json");
+            con.setRequestProperty("Accept", "application/vnd.twitchtv.v3+json");
             con.setConnectTimeout(5000);
             con.setRequestMethod("GET");
 
@@ -83,11 +82,11 @@ public class TwitchUtils {
                 return true;
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.warning(e.toString());
         } catch (java.net.SocketTimeoutException e) {
-            e.printStackTrace();
+            log.warning(e.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warning(e.toString());
         }
         return false;
     }
