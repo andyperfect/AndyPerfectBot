@@ -181,7 +181,7 @@ public class TwitchChatConnection {
             writer.write("PRIVMSG " + ChatBotUtils.addHashTagToChannel(this.channel) + " :" + message + "\r\n");
             writer.flush();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.severe(e.getMessage());
         }
     }
 

@@ -90,7 +90,7 @@ public class DBConnection {
                         "INNER JOIN user_channel uc ON u.id = uc.user_id " +
                         "INNER JOIN channel c ON uc.channel_id = c.id " +
                         "WHERE c.name = '%s' " +
-                        "AND u.username != '%s' " +
+                        "AND u.username NOT IN ('andyperfectbot', '%s') " +
                         "ORDER BY uc.time_connected DESC;",
                         channel, botUsername);
                 ResultSet rs = statement.executeQuery(queryString);
@@ -121,7 +121,7 @@ public class DBConnection {
                         "INNER JOIN user_channel uc ON u.id = uc.user_id " +
                         "INNER JOIN channel c ON uc.channel_id = c.id " +
                         "WHERE c.name = '%s' " +
-                        "AND u.username != '%s' " +
+                        "AND u.username NOT IN ('andyperfectbot', '%s') " +
                          "ORDER BY uc.chat_count DESC;",
                         channel, botUsername);
                 ResultSet rs = statement.executeQuery(queryString);
