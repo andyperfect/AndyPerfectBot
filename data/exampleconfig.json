@@ -9,7 +9,6 @@
       "port": 6667,
       "enabled": 1,
       "users": {
-        "op": "channel1",
         "moderators": []
       },
       "time_needed_to_quote":86400000,
@@ -25,7 +24,6 @@
       "port": 6667,
       "enabled": 0,
       "users": {
-        "op": "channel2",
         "moderators": []
       },
       "time_needed_to_quote":86400000,

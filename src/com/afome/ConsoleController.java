@@ -2,7 +2,10 @@ package com.afome;
 
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Arrays;
 import com.afome.ChatBot.ChatBot;
+import com.afome.ChatBot.ConfigHandler;
 import com.afome.ChatBot.TwitchChatConnection;
 
 
@@ -19,7 +22,7 @@ public class ConsoleController {
 
         while (scanner.hasNextLine()) {
             String input = scanner.nextLine();
-            input = input.replaceAll("\\s+", "");
+            input = input.trim();
             if (input.equals("start")) {
                 handleStart();
             }
@@ -28,6 +31,13 @@ public class ConsoleController {
             }
             if (input.equals("list")) {
                 handleList();
+            }
+            if (input.startsWith("listconfig")) {
+                ArrayList<String> params = new ArrayList<String>(Arrays.asList(input.split("\\s+")));
+                if (params.size() != 2) {
+                    System.out.println("invalid parameters");
+                }
+                handleListConfig(params.get(1));
             }
             System.out.print("> ");
         }
@@ -87,5 +97,22 @@ public class ConsoleController {
             }
         }
         System.out.print(outputString.toString());
+    }
+
+    private void handleListConfig(String channel) {
+        try {
+            ConfigHandler configHandler = ConfigHandler.getInstance();
+            HashMap<String, Object> channelConfig = configHandler.getChannelConfig(channel.toLowerCase());
+            if (channelConfig == null) {
+                return;
+            }
+            System.out.println("Config for channel " + channel);
+            for (String key : channelConfig.keySet()) {
+                System.out.println(key + ":" + channelConfig.get(key).toString());
+            }
+        } catch (Exception e) {
+            System.out.println("Failed in handleListConfig: " + e.getMessage());
+        }
+
     }
 }
