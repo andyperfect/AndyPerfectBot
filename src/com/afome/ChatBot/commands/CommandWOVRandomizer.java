@@ -7,7 +7,9 @@ import java.util.HashMap;
 
 public class CommandWOVRandomizer implements Command {
     private ConfigHandler config;
-    public CommandWOVRandomizer() throws IOException {
+    private TwitchChatConnection chatConn;
+    public CommandWOVRandomizer(TwitchChatConnection chatConn) throws IOException {
+        this.chatConn = chatConn;
         config = ConfigHandler.getInstance();
     }
 
@@ -111,5 +113,9 @@ public class CommandWOVRandomizer implements Command {
             outputMessage = gameMode + " | " + area + " | " + weapon + " | " + stipulation;
         }
         chatConn.sendChatMessage(outputMessage);
+    }
+
+    public void iteration() {
+
     }
 }

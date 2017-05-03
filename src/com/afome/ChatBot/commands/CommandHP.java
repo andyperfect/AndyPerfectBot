@@ -6,7 +6,10 @@ import java.io.IOException;
 
 public class CommandHP implements Command {
     private ConfigHandler config;
-    public CommandHP() throws IOException {
+    private TwitchChatConnection chatConn;
+
+    public CommandHP(TwitchChatConnection chatConn) throws IOException {
+        this.chatConn = chatConn;
         config = ConfigHandler.getInstance();
     }
 
@@ -29,7 +32,7 @@ public class CommandHP implements Command {
             Object[] userRank = fileIO.getUserRank(channel, user.getUser(), "time");
             if (userRank[0] != null) {
                 chatConn.sendChatMessage(message.getUser() + " is ranked " + userRank[1] + " with " +
-                        ChatBotUtils.millisToReadableFormat(((UserData) userRank[0]).getNumMillis()) + " in chat");
+                        ChatBotUtils.millisToReadableFormat(((UserData) userRank[0]).getNumMillis(), "long") + " in chat");
             }
         } else if (splitLine.length == 2) {
             if (splitLine[1].startsWith("#")) {
@@ -40,7 +43,7 @@ public class CommandHP implements Command {
                     UserData userAtRank = fileIO.getUserAtTimeRank(channel, rankToFind);
                     if (userAtRank != null) {
                         chatConn.sendChatMessage("Rank " + String.valueOf(rankToFind) + ": " + userAtRank.getUser() + " has " +
-                                ChatBotUtils.millisToReadableFormat(userAtRank.getNumMillis()) + " in chat");
+                                ChatBotUtils.millisToReadableFormat(userAtRank.getNumMillis(), "long") + " in chat");
                     }
                 } catch (Exception e) {
                     // Ignore
@@ -53,10 +56,14 @@ public class CommandHP implements Command {
                     Object[] userRank = fileIO.getUserRank(channel, splitLine[1].toLowerCase(), "time");
                     if (userRank[0] != null) {
                         chatConn.sendChatMessage(((UserData)userRank[0]).getUser() + " is ranked " + userRank[1] + " with " +
-                                ChatBotUtils.millisToReadableFormat(((UserData) userRank[0]).getNumMillis()) + " in chat");
+                                ChatBotUtils.millisToReadableFormat(((UserData) userRank[0]).getNumMillis(), "long") + " in chat");
                     }
                 }
             }
         }
+    }
+
+    public void iteration() {
+
     }
 }

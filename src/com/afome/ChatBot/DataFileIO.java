@@ -1,6 +1,7 @@
 package com.afome.ChatBot;
 
 import com.afome.APBotMain;
+import com.afome.ChatBot.models.RouletteModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,6 +105,15 @@ public class DataFileIO {
         if (success) {
             for (ChatMessage chatMessage : chatMessages) {
                 chatMessage.setExistsInDatabase(true);
+            }
+        }
+    }
+
+    public void writeRoulettesToDatabase(ArrayList<RouletteModel> roulettes) {
+        boolean success = db.writeRoulettesToDatabase(roulettes);
+        if (success) {
+            for (RouletteModel roulette : roulettes) {
+                roulette.setExistsInDatabase(true);
             }
         }
     }

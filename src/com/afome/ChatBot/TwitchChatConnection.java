@@ -59,19 +59,19 @@ public class TwitchChatConnection {
         commands = new ArrayList<Command>();
 
         if (config.isBotCommandsEnabled(channel)) {
-            commands.add(new CommandUptime());
+            commands.add(new CommandUptime(this));
             if (config.isUserTrackingCommandsEnabled(channel)) {
-                commands.add(new CommandHP());
-                commands.add(new CommandPP());
+                commands.add(new CommandHP(this));
+                commands.add(new CommandPP(this));
             }
             if (config.isQuotesEnabled(channel)) {
-                commands.add(new CommandQuote());
+                commands.add(new CommandQuote(this));
             }
             if (config.isRouletteEnabled(channel)) {
-                commands.add(new CommandRoulette());
+                commands.add(new CommandRoulette(this));
             }
             if (config.isWovCommandEnabled(channel)) {
-                commands.add(new CommandWOVRandomizer());
+                commands.add(new CommandWOVRandomizer(this));
             }
         }
     }
@@ -291,6 +291,12 @@ public class TwitchChatConnection {
             writerThread.start();
 
             lastDbWriteTime = System.currentTimeMillis();
+        }
+    }
+
+    public void commandIteration() {
+        for (Command command : commands) {
+            command.iteration();
         }
     }
 

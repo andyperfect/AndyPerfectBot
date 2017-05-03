@@ -21,7 +21,7 @@ public class ChatBotUtils {
     public static Random random = new Random();
 
 
-    public static String millisToReadableFormat(long millis) {
+    public static String millisToReadableFormat(long millis, String format) {
         /*86400000 millis in a day
          *3600000 millis in an hour
          * 60000 millis in a minute
@@ -39,6 +39,17 @@ public class ChatBotUtils {
         long minutes = (long) Math.floor(delta / 60000.0);
         delta -= minutes * 60000;
 
+        if (format.equals("short")) {
+            return shortFormattedTime(days, hours, minutes);
+        } else {
+            return longFormattedTime(days, hours, minutes);
+        }
+
+
+    }
+
+    private static String longFormattedTime(long days, long hours, long minutes) {
+        StringBuilder timeStringBuilder = new StringBuilder();
         if (days > 0) {
             timeStringBuilder.append(String.valueOf(days));
             String toAppend = (days == 1) ? " day" : " days";
@@ -70,6 +81,10 @@ public class ChatBotUtils {
         }
 
         return timeStringBuilder.toString();
+    }
+
+    private static String shortFormattedTime(long days, long hours, long minutes) {
+        return String.format("%sd %sh %sm", days, hours, minutes);
     }
 
     public static String epochToDateString(long epoch) {

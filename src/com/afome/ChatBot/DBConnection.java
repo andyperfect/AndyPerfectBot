@@ -1,5 +1,7 @@
 package com.afome.ChatBot;
 
+import com.afome.ChatBot.models.RouletteModel;
+
 import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
@@ -264,6 +266,43 @@ public class DBConnection {
                         pStatement.setString(2, chatMessage.getChannel());
                         pStatement.setString(3, chatMessage.getMessage());
                         pStatement.setLong(4, chatMessage.getMessageMillis());
+                        pStatement.addBatch();
+                    }
+                }
+                pStatement.executeBatch();
+                pStatement.close();
+                conn.commit();
+                conn.setAutoCommit(true);
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean writeRoulettesToDatabase(ArrayList<RouletteModel> roulettes) {
+        try {
+            if (conn != null) {
+                conn.setAutoCommit(false);
+                String queryString =
+                        "INSERT INTO roulette (user_channel_id, date, value) " +
+                                "VALUES ( " +
+                                "   ( " +
+                                "       SELECT uc.id FROM user_channel uc " +
+                                "       INNER JOIN user u on uc.user_id = u.id " +
+                                "       INNER JOIN channel c on uc.channel_id = c.id " +
+                                "       WHERE u.username=? " +
+                                "       AND c.name =? " +
+                                "   ), ?, ? " +
+                                ")";
+                PreparedStatement pStatement = conn.prepareStatement(queryString);
+                for (RouletteModel roulette : roulettes) {
+                    if (!roulette.doesExistInDatabase()) {
+                        pStatement.setString(1, roulette.getUsername());
+                        pStatement.setString(2, roulette.getChannel());
+                        pStatement.setLong(3, roulette.getTimeInMillis());
+                        pStatement.setInt(4, roulette.getValue());
                         pStatement.addBatch();
                     }
                 }

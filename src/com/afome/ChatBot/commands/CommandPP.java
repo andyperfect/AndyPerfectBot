@@ -6,7 +6,9 @@ import java.io.IOException;
 
 public class CommandPP implements Command {
     private ConfigHandler config;
-    public CommandPP() throws IOException {
+    private TwitchChatConnection chatConn;
+    public CommandPP(TwitchChatConnection chatConn) throws IOException {
+        this.chatConn = chatConn;
         config = ConfigHandler.getInstance();
     }
 
@@ -58,5 +60,9 @@ public class CommandPP implements Command {
                 }
             }
         }
+    }
+
+    public void iteration() {
+
     }
 }

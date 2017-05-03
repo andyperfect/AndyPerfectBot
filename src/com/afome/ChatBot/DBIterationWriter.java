@@ -22,8 +22,6 @@ public class DBIterationWriter implements Runnable {
     public void run() {
         chatConn.fileIO.writeUserDataToDatabase(chatConn.fullUserDataList);
         chatConn.fileIO.writeChatMessagesToDatabase(chatConn.getChatLog());
-        if (config.isQuotesEnabled(chatConn.getChannel())) {
-            chatConn.fileIO.writeQuotesToDatabase(chatConn.getQuotes());
-        }
+        chatConn.commandIteration();
     }
 }

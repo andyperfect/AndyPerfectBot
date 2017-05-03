@@ -11,4 +11,5 @@ public interface Command {
     boolean canUseCommand(UserData user, TwitchChatConnection chatConn);
     boolean isCommand(ChatMessage message);
     void executeCommand(ChatMessage message, UserData user, TwitchChatConnection chatConnection);
+    void iteration();
 }

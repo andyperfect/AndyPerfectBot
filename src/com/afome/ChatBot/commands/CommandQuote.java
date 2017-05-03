@@ -6,7 +6,9 @@ import java.io.IOException;
 
 public class CommandQuote implements Command {
     private ConfigHandler config;
-    public CommandQuote() throws IOException {
+    private TwitchChatConnection chatConn;
+    public CommandQuote(TwitchChatConnection chatConn) throws IOException {
+        this.chatConn = chatConn;
         config = ConfigHandler.getInstance();
     }
 
@@ -58,5 +60,9 @@ public class CommandQuote implements Command {
         } else {
             return chatConn.getQuotes().get(ChatBotUtils.random.nextInt(chatConn.getQuotes().size()));
         }
+    }
+
+    public void iteration() {
+        chatConn.getFileIO().writeQuotesToDatabase(chatConn.getQuotes());
     }
 }
