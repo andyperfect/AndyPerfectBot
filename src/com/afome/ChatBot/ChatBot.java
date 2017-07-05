@@ -45,11 +45,12 @@ public class ChatBot implements Runnable {
 
             log.log(Level.INFO, "Startup completed -- beginning main loop");
             // MAIN LOOP
-            boolean channelCurrentlyOn = false;
+            boolean anyChannelCurrentlyOn = false;
             while (running) {
                 flushLogs();
-                channelCurrentlyOn = false;
+                anyChannelCurrentlyOn = false;
                 for (TwitchChatConnection connection : chatConnections) {
+
                     // Stream just turned on
                     if (!previousChannelStatuses.get(connection.getChannel()) &&
                             channelStatuses.get(connection.getChannel())) {
@@ -59,20 +60,26 @@ public class ChatBot implements Runnable {
 
                     }
                     // Stream just turned off
-                    if (previousChannelStatuses.get(connection.getChannel()) &&
-                            !channelStatuses.get(connection.getChannel())) {
-                        log.info("Stream " + connection.getChannel() + " turned off. Disconnecting...");
-                        previousChannelStatuses.put(connection.getChannel(), false);
-                        connection.terminateConnection();
+                    if (previousChannelStatuses.get(connection.getChannel())) {
+                        if (!channelStatuses.get(connection.getChannel())) {
+                            log.info("Stream " + connection.getChannel() + " turned off. Disconnecting...");
+                            previousChannelStatuses.put(connection.getChannel(), false);
+                            connection.terminateConnection();
+                        }
+                        if (System.currentTimeMillis() - connection.getLastPingTime() > ChatBotUtils.FIFTEEN_MINUTES_IN_MILLIS) {
+                            log.info("Lost IRC connection to channel " + connection.getChannel() + ". Disconnecting...");
+                            previousChannelStatuses.put(connection.getChannel(), false);
+                            connection.terminateConnection();
+                        }
                     }
 
                     if (connection.isConnected()) {
-                        channelCurrentlyOn = true;
+                        anyChannelCurrentlyOn = true;
                         connection.handleQueuedMessages();
                         connection.iteration();
                     }
                 }
-                if (channelCurrentlyOn) {
+                if (anyChannelCurrentlyOn) {
                     Thread.sleep(100);
                 } else {
                     Thread.sleep(60000);

@@ -2,6 +2,7 @@ package com.afome.ChatBot;
 
 import java.text.SimpleDateFormat;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 public class ChatBotUtils {
 
     public static final String URLRegex = "(https?:\\/\\/)?(www\\.)?([a-zA-Z0-9]+\\.)+([a-z]{3}|[a-z]{2})";
+    public static final long FIFTEEN_MINUTES_IN_MILLIS = 900000;
     public static final long TEN_MINUTES_IN_MILLIS = 600000;
     public static final long FIVE_MINUTES_IN_MILLIS = 300000;
     public static final long ONE_MINUTE_IN_MILLIS = 60000;
@@ -112,6 +114,10 @@ public class ChatBotUtils {
             }
         }
         return null;
+    }
+
+    public static long millisToMinutes(long millis) {
+        return (long) Math.floor(millis / 60000.0);
     }
 
     public static String stripHashtagFromChannel(String channel) {

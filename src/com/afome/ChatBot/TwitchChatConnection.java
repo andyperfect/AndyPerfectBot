@@ -26,6 +26,7 @@ public class TwitchChatConnection {
     private long initialConnectionTime = -1;
     private long lastTwitchUserQueryTime = -1;
     private long lastDbWriteTime = -1;
+    private long lastPingTime = -1;
 
     private boolean connected = false;
 
@@ -171,6 +172,7 @@ public class TwitchChatConnection {
     }
 
     public void replyToPing(String pingMessage) throws Exception {
+        lastPingTime = System.currentTimeMillis();
         writer.write("PONG " + pingMessage.substring(5) + "\r\n");
         writer.flush();
     }
@@ -318,5 +320,9 @@ public class TwitchChatConnection {
 
     public ArrayList<Quote> getQuotes() {
         return quotes;
+    }
+
+    public long getLastPingTime() {
+        return lastPingTime;
     }
 }
