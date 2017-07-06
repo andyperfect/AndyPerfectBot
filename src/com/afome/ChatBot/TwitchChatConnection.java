@@ -93,6 +93,7 @@ public class TwitchChatConnection {
             initialConnectionTime = System.currentTimeMillis();
             lastTwitchUserQueryTime = System.currentTimeMillis() - ChatBotUtils.ONE_MINUTE_IN_MILLIS;
             lastDbWriteTime = initialConnectionTime;
+            lastPingTime = initialConnectionTime;
 
             //sendChatMessage("Hi there! I'm just here to monitor for the time being. I'll lurk silently. I promise.");
             log.info("successfully connected:" + channel);
